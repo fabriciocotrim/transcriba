@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Transcriba — teste no navegador</title>
+<style>
+:root{--bg:#f6f1e7;--card:#fffdf8;--text:#2b2a27;--muted:#6f6a60;--line:#e3dccd;--accent:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--card:#1d1f24;--text:#e8e6e1;--muted:#9a978f;--line:#2f323a;--accent:#e06666}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Segoe UI",system-ui,sans-serif;padding:16px}
+main{max-width:720px;margin:0 auto}
+h1{font-size:1.4rem;margin:0 0 4px}
+p.sub{color:var(--muted);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+label{display:block;font-weight:600;margin:10px 0 4px}
+select,input[type=file]{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text)}
+button{font:inherit;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:10px 16px;margin-top:14px;cursor:pointer;width:100%}
+button.sec{background:transparent;color:var(--text);border-color:var(--line)}
+button:disabled{opacity:.5;cursor:default}
+#estado{font-weight:600}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
+dt{color:var(--muted)} dd{margin:0;font-family:ui-monospace,Consolas,monospace;word-break:break-word}
+#texto{white-space:pre-wrap;max-height:240px;overflow:auto;font-size:.95rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Transcriba no navegador — teste</h1>
+  <p class="sub">Mede quanto tempo o seu aparelho leva para transcrever. O áudio não sai do aparelho.</p>
+
+  <div class="card">
+    <label for="arquivo">1. Áudio ou vídeo (ideal: 10 minutos de fala)</label>
+    <input id="arquivo" type="file" accept="audio/*,video/*">
+    <label for="modelo">2. Qualidade</label>
+    <select id="modelo">
+      <option value="onnx-community/whisper-base">Rápido (whisper base, ~150 MB)</option>
+      <option value="onnx-community/whisper-small">Equilibrado (whisper small, ~500 MB)</option>
+    </select>
+    <label for="modo">3. Modo</label>
+    <select id="modo"></select>
+    <button id="ir" disabled>Transcrever</button>
+  </div>
+
+  <div class="card">
+    <p id="estado">Escolha um arquivo.</p>
+    <dl id="medidas"></dl>
+  </div>
+
+  <div class="card">
+    <div id="texto"></div>
+    <button id="copiar" class="sec" disabled>Copiar resultado</button>
+  </div>
+</main>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const hasGpu = !!navigator.gpu && !!(await navigator.gpu.requestAdapter().catch(() => null));
+$('modo').innerHTML = (hasGpu ? '<option value="webgpu">Placa de vídeo (WebGPU)</option>' : '') +
+  '<option value="wasm">Processador (WASM)</option>';
+
+const worker = new Worker('worker.js', { type: 'module' });
+let audio = null, duracao = 0, inicio = 0, relogio = null, resultado = null;
+
+function mostrar(medidas) {
+  $('medidas').innerHTML = Object.entries(medidas).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+}
+const seg = (ms) => (ms / 1000).toFixed(1) + ' s';
+const aparelho = () => ({
+  navegador: navigator.userAgent,
+  webgpu: hasGpu ? 'sim' : 'não',
+  nucleos: navigator.hardwareConcurrency || '?',
+  memoria_gb: navigator.deviceMemory || '?',
+});
+
+$('arquivo').onchange = async () => {
+  const f = $('arquivo').files[0];
+  if (!f) return;
+  $('ir').disabled = true;
+  $('estado').textContent = 'Lendo o arquivo…';
+  try {
+    const ctx = new AudioContext({ sampleRate: 16000 });
+    const buf = await ctx.decodeAudioData(await f.arrayBuffer());
+    ctx.close();
+    const ch = buf.numberOfChannels;
+    audio = new Float32Array(buf.length);
+    for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) audio[i] += d[i] / ch; }
+    duracao = buf.duration;
+    $('estado').textContent = `Pronto: ${(duracao / 60).toFixed(1)} min de áudio.`;
+    $('ir').disabled = false;
+  } catch (e) {
+    $('estado').textContent = 'Não consegui ler este arquivo no navegador: ' + e.message;
+  }
+};
+
+$('ir').onclick = () => {
+  $('ir').disabled = true; $('copiar').disabled = true; $('texto').textContent = '';
+  inicio = performance.now();
+  $('estado').textContent = 'Baixando o modelo (só na primeira vez)…';
+  clearInterval(relogio);
+  relogio = setInterval(() => mostrar({ decorrido: seg(performance.now() - inicio) }), 500);
+  const copia = audio.slice();
+  worker.postMessage({ model: $('modelo').value, device: $('modo').value, audio: copia, language: 'portuguese' }, [copia.buffer]);
+};
+
+worker.onmessage = ({ data }) => {
+  if (data.type === 'download' && data.total) {
+    $('estado').textContent = `Baixando o modelo: ${data.file} ${Math.round(data.loaded / data.total * 100)}%`;
+  } else if (data.type === 'chunk') {
+    $('estado').textContent = `Transcrevendo: trecho ${data.done} de ${data.total} (${seg(data.ms)})`;
+    $('texto').textContent += data.text + '\n';
+  } else if (data.type === 'done') {
+    clearInterval(relogio);
+    resultado = {
+      modelo: $('modelo').value, modo: $('modo').value,
+      audio_min: +(duracao / 60).toFixed(2),
+      carregar_s: +(data.loadMs / 1000).toFixed(1),
+      transcrever_s: +(data.runMs / 1000).toFixed(1),
+      vezes_a_duracao: +(data.runMs / 1000 / duracao).toFixed(2),
+      memoria_js_mb: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 2 ** 20) : '?',
+      ...aparelho(),
+    };
+    $('estado').textContent = resultado.vezes_a_duracao <= 1
+      ? 'Pronto. Mais rápido que o próprio áudio.'
+      : `Pronto. Levou ${resultado.vezes_a_duracao}× a duração do áudio.`;
+    mostrar(resultado);
+    $('texto').textContent = data.text.trim();
+    $('ir').disabled = false; $('copiar').disabled = false;
+  } else if (data.type === 'error') {
+    clearInterval(relogio);
+    $('estado').textContent = 'Falhou: ' + data.message;
+    resultado = { erro: data.message, modelo: $('modelo').value, modo: $('modo').value, ...aparelho() };
+    mostrar(resultado);
+    $('ir').disabled = false; $('copiar').disabled = false;
+  }
+};
+
+$('copiar').onclick = async () => {
+  const txt = JSON.stringify(resultado, null, 1);
+  try { await navigator.clipboard.writeText(txt); $('copiar').textContent = 'Copiado'; }
+  catch { prompt('Copie:', txt); }
+  setTimeout(() => ($('copiar').textContent = 'Copiar resultado'), 1500);
+};
+</script>
+</body>
+</html>
