@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transcriba — transcrição de áudio e vídeo no seu computador</title>
+<meta name="description" content="Transforme gravações em texto no seu computador, de graça e sem limite. Para entrevistas de pesquisa, aulas e reuniões. O áudio nunca sai do seu computador.">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Libre+Bodoni:wght@700&family=Libre+Franklin:wght@400;600;800&display=swap">
+<style>
+:root{--papel:#eeede7;--tinta:#18181b;--vermelho:#b3261e;--vermelho-escuro:#951f18;--fio:#cfccc2;--cinza:#55555c;--ativa:#e2e0d7}
+*{box-sizing:border-box}
+html{background:var(--papel)}
+body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.55 "Libre Franklin",system-ui,sans-serif}
+.pagina{max-width:1040px;margin:0 auto;padding:0 20px}
+a{color:inherit}
+header.cabeca{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:18px 0 10px;border-bottom:3px double var(--tinta)}
+.marca{font:700 34px/1 "Libre Bodoni",serif;margin:0}
+.data{font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:var(--cinza)}
+.faixa{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--tinta)}
+.kicker{background:var(--vermelho);color:#fff;font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;padding:5px 8px;text-transform:uppercase}
+.faixa span{font:600 13px/1.3 "Libre Franklin",sans-serif}
+.manchete{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;padding:28px 0 24px;border-bottom:1px solid var(--tinta)}
+h1{font:700 clamp(32px,5vw,52px)/1.05 "Libre Bodoni",serif;margin:0 0 16px}
+.lead{font-size:18px;margin:0 0 22px;max-width:36em}
+.baixar{display:inline-block;background:var(--vermelho);color:#fff;text-decoration:none;font:700 17px/1 "Libre Franklin",sans-serif;padding:16px 26px}
+.baixar:hover{background:var(--vermelho-escuro)}
+.baixar small{display:block;font:400 13px/1.2 "Libre Franklin",sans-serif;margin-top:6px;opacity:.9}
+.alt{margin:14px 0 0;font-size:14px;color:var(--cinza)}
+.requisito{font:400 13px/1.4 "Courier Prime",monospace;color:var(--cinza);margin-top:14px}
+.passos{border-left:1px solid var(--tinta);padding-left:24px}
+.passos h2,.secao h2{font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;text-transform:uppercase;margin:0 0 14px}
+.passos ol{margin:0;padding:0;list-style:none;counter-reset:p}
+.passos li{counter-increment:p;padding:0 0 14px 40px;position:relative}
+.passos li::before{content:counter(p,decimal-leading-zero);position:absolute;left:0;top:-2px;font:700 20px/1 "Courier Prime",monospace}
+.passos li b{display:block}
+.tela{margin:24px 0;border:1px solid var(--tinta)}
+.tela img{display:block;width:100%;height:auto}
+.legenda{font:400 13px/1.4 "Libre Franklin",sans-serif;color:var(--cinza);margin:-14px 0 24px}
+.colunas{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--tinta);border-bottom:1px solid var(--tinta)}
+.colunas div{padding:18px 20px 18px 0}
+.colunas div+div{border-left:1px solid var(--fio);padding-left:20px}
+.colunas h3{font:700 22px/1.15 "Libre Bodoni",serif;margin:0 0 8px}
+.colunas p{margin:0;font-size:15px}
+.secao{padding:26px 0;border-bottom:1px solid var(--tinta)}
+dl{margin:0;display:grid;grid-template-columns:minmax(0,18em) 1fr;gap:12px 28px}
+dt{font-weight:800}
+dd{margin:0}
+footer{padding:20px 0 40px;font-size:13px;color:var(--cinza)}
+footer p{margin:4px 0}
+@media (max-width:760px){
+  .manchete{grid-template-columns:1fr}
+  .passos{border-left:none;border-top:1px solid var(--tinta);padding:20px 0 0}
+  .colunas{grid-template-columns:1fr}
+  .colunas div+div{border-left:none;border-top:1px solid var(--fio);padding-left:0}
+  dl{grid-template-columns:1fr;gap:4px}
+  dd{margin-bottom:12px}
+  header.cabeca{flex-direction:column;gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="pagina">
+  <header class="cabeca">
+    <p class="marca">Transcriba</p>
+    <span class="data">Transcrição no seu computador · grátis · sem limite</span>
+  </header>
+  <div class="faixa"><span class="kicker">Novo</span><span>Versão 0.2.2 para Windows 10 e 11</span></div>
+
+  <section class="manchete">
+    <div>
+      <h1>Suas gravações viram texto. O áudio não sai do seu computador.</h1>
+      <p class="lead">Entrevistas de pesquisa, aulas e reuniões: escolha dezenas de arquivos, clique em Transcrever e volte para encontrar os textos prontos. Sem conta, sem assinatura, sem limite de minutos.</p>
+      <a class="baixar" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2">Baixar o Transcriba<small>Versão portátil · 183 MB · não precisa instalar</small></a>
+      <p class="alt">Prefere instalar com atalho no menu Iniciar? <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</p>
+      <p class="requisito">Windows 10 ou 11, 64 bits · placa NVIDIA opcional (deixa bem mais rápido)</p>
+    </div>
+    <div class="passos">
+      <h2>Como começar</h2>
+      <ol>
+        <li><b>Extraia a pasta</b>Clique com o botão direito no arquivo baixado e escolha "Extrair tudo". Não abra o programa de dentro do .zip.</li>
+        <li><b>Abra o Transcriba.exe</b>Na primeira vez, o Windows pode mostrar "O Windows protegeu o computador". Clique em "Mais informações" e depois em "Executar assim mesmo".</li>
+        <li><b>Arraste os arquivos e clique em Transcrever</b>Na primeira transcrição, o programa baixa o modelo de voz uma vez só (de 150 MB a 1,6 GB). Depois, funciona sem internet.</li>
+      </ol>
+    </div>
+  </section>
+
+  <figure class="tela" style="margin-bottom:24px">
+    <img src="img/transcrevendo.webp" width="1400" height="753" alt="Janela do Transcriba transcrevendo uma fila de arquivos, com o texto aparecendo ao vivo à direita" loading="lazy">
+  </figure>
+  <p class="legenda">A fila de arquivos, o que está sendo transcrito agora e o texto aparecendo ao vivo.</p>
+
+  <section class="colunas">
+    <div><h3>Privado</h3><p>Tudo acontece no seu computador. Suas gravações e os textos não são enviados a ninguém.</p></div>
+    <div><h3>Em lote</h3><p>Uma pasta inteira de uma vez. Ele avisa quando termina e não deixa o computador dormir no meio.</p></div>
+    <div><h3>Pronto para usar</h3><p>Texto corrido (.txt), legendas (.srt) ou texto com marcas de tempo. MP3, MP4, M4A, WAV, OGG do WhatsApp e outros.</p></div>
+  </section>
+
+  <section class="secao">
+    <h2>Perguntas</h2>
+    <dl>
+      <dt>É grátis mesmo?</dt>
+      <dd>Sim, e sem limite. Se o Transcriba te ajudar, dá para apoiar uma vez só pelo Pix, dentro do próprio programa. Não é obrigatório.</dd>
+      <dt>Precisa de internet?</dt>
+      <dd>Só na primeira transcrição, para baixar o modelo de voz. Depois, funciona offline.</dd>
+      <dt>Fica bom com áudio misturado em inglês?</dt>
+      <dd>Sim. Ele detecta o idioma e mantém as citações em outro idioma. Na qualidade "Preciso", o resultado é o melhor.</dd>
+      <dt>Meu computador é fraco. Funciona?</dt>
+      <dd>Funciona, mais devagar: sem placa NVIDIA, uma hora de áudio pode levar perto de uma hora. Deixe rodando e vá fazer outra coisa.</dd>
+      <dt>Por que o Windows avisa ao abrir?</dt>
+      <dd>O aviso aparece com programas que não têm assinatura digital paga. O Transcriba é de um desenvolvedor independente. O código não se conecta a nada além do download do modelo.</dd>
+      <dt>Tem para Mac ou celular?</dt>
+      <dd>Ainda não. Se você precisa, conte para a gente: isso define o que vem a seguir.</dd>
+    </dl>
+  </section>
+
+  <footer>
+    <p>Transcriba 0.2.2 · <a href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></p>
+    <p>Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais. O programa não envia nada.</p>
+  </footer>
+</div>
+<script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
