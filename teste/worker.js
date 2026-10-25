@@ -2,7 +2,9 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1';
 
 const SR = 16000;
-const CHUNK = 30 * SR; // trechos de 30 s, como o Whisper espera
+const MAX = 30 * SR;   // o Whisper lê no máximo 30 s por vez
+const BUSCA = 4 * SR;  // procura a pausa nos últimos 4 s do trecho
+const JANELA = SR / 10; // energia medida em janelas de 100 ms
 
 let asr = null;
 let loadedKey = '';
@@ -11,6 +13,24 @@ function dtypeFor(device) {
   return device === 'webgpu'
     ? { encoder_model: 'fp32', decoder_model_merged: 'q4' }
     : { encoder_model: 'q8', decoder_model_merged: 'q8' };
+}
+
+// Corta na pausa mais silenciosa perto do limite de 30 s, para não partir palavra ao meio.
+function cortes(audio) {
+  const out = [];
+  let ini = 0;
+  while (audio.length - ini > MAX) {
+    let melhor = ini + MAX, menor = Infinity;
+    for (let p = ini + MAX - BUSCA; p + JANELA <= ini + MAX; p += JANELA) {
+      let e = 0;
+      for (let i = p; i < p + JANELA; i++) e += audio[i] * audio[i];
+      if (e < menor) { menor = e; melhor = p + JANELA / 2; }
+    }
+    out.push([ini, melhor]);
+    ini = melhor;
+  }
+  out.push([ini, audio.length]);
+  return out;
 }
 
 self.onmessage = async ({ data }) => {
@@ -30,16 +50,18 @@ self.onmessage = async ({ data }) => {
       loadMs = performance.now() - t0;
       loadedKey = key;
     }
-    const total = Math.ceil(audio.length / CHUNK);
-    const parts = [];
+    const partes = cortes(audio);
+    const textos = [];
     const t1 = performance.now();
-    for (let i = 0; i < total; i++) {
-      const piece = audio.subarray(i * CHUNK, Math.min(audio.length, (i + 1) * CHUNK));
-      const out = await asr(piece, { language, task: 'transcribe', max_new_tokens: 224 });
-      parts.push((out.text || '').trim());
-      self.postMessage({ type: 'chunk', done: i + 1, total, ms: performance.now() - t1, text: parts[i] });
+    for (let i = 0; i < partes.length; i++) {
+      const [a, b] = partes[i];
+      const opts = { task: 'transcribe' };
+      if (language) opts.language = language; // vazio: o Whisper detecta, como no desktop
+      const out = await asr(audio.slice(a, b), opts);
+      textos.push((out.text || '').trim());
+      self.postMessage({ type: 'chunk', done: i + 1, total: partes.length, ms: performance.now() - t1, text: textos[i] });
     }
-    self.postMessage({ type: 'done', loadMs, runMs: performance.now() - t1, text: parts.join('\n') });
+    self.postMessage({ type: 'done', loadMs, runMs: performance.now() - t1, text: textos.join('\n') });
   } catch (e) {
     self.postMessage({ type: 'error', message: String((e && e.message) || e) });
   }

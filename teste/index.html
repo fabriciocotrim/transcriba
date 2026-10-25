@@ -40,6 +40,12 @@ dt{color:var(--muted)} dd{margin:0;font-family:ui-monospace,Consolas,monospace;w
     </select>
     <label for="modo">3. Modo</label>
     <select id="modo"></select>
+    <label for="idioma">4. Idioma</label>
+    <select id="idioma">
+      <option value="">Detectar (como no app desktop)</option>
+      <option value="portuguese">Português</option>
+      <option value="english">Inglês</option>
+    </select>
     <button id="ir" disabled>Transcrever</button>
   </div>
 
@@ -59,7 +65,7 @@ const hasGpu = !!navigator.gpu && !!(await navigator.gpu.requestAdapter().catch(
 $('modo').innerHTML = (hasGpu ? '<option value="webgpu">Placa de vídeo (WebGPU)</option>' : '') +
   '<option value="wasm">Processador (WASM)</option>';
 
-const worker = new Worker('worker.js', { type: 'module' });
+const worker = new Worker('worker.js?v=2', { type: 'module' });
 let audio = null, duracao = 0, inicio = 0, relogio = null, resultado = null;
 
 function mostrar(medidas) {
@@ -100,7 +106,7 @@ $('ir').onclick = () => {
   clearInterval(relogio);
   relogio = setInterval(() => mostrar({ decorrido: seg(performance.now() - inicio) }), 500);
   const copia = audio.slice();
-  worker.postMessage({ model: $('modelo').value, device: $('modo').value, audio: copia, language: 'portuguese' }, [copia.buffer]);
+  worker.postMessage({ model: $('modelo').value, device: $('modo').value, audio: copia, language: $('idioma').value }, [copia.buffer]);
 };
 
 worker.onmessage = ({ data }) => {
@@ -112,7 +118,7 @@ worker.onmessage = ({ data }) => {
   } else if (data.type === 'done') {
     clearInterval(relogio);
     resultado = {
-      modelo: $('modelo').value, modo: $('modo').value,
+      modelo: $('modelo').value, modo: $('modo').value, idioma: $('idioma').value || 'detectar', versao: 2,
       audio_min: +(duracao / 60).toFixed(2),
       carregar_s: +(data.loadMs / 1000).toFixed(1),
       transcrever_s: +(data.runMs / 1000).toFixed(1),
