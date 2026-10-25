@@ -37,12 +37,13 @@ dt{color:var(--muted)} dd{margin:0;font-family:ui-monospace,Consolas,monospace;w
     <select id="modelo">
       <option value="onnx-community/whisper-base">Rápido (whisper base, ~150 MB)</option>
       <option value="onnx-community/whisper-small">Equilibrado (whisper small, ~500 MB)</option>
+      <option value="onnx-community/whisper-large-v3-turbo">Preciso (large-v3-turbo, ~1 GB, só placa de vídeo)</option>
     </select>
     <label for="modo">3. Modo</label>
     <select id="modo"></select>
     <label for="idioma">4. Idioma</label>
     <select id="idioma">
-      <option value="">Detectar (como no app desktop)</option>
+      <option value="">Detectar pelo início do arquivo (como no app desktop)</option>
       <option value="portuguese">Português</option>
       <option value="english">Inglês</option>
     </select>
@@ -65,7 +66,7 @@ const hasGpu = !!navigator.gpu && !!(await navigator.gpu.requestAdapter().catch(
 $('modo').innerHTML = (hasGpu ? '<option value="webgpu">Placa de vídeo (WebGPU)</option>' : '') +
   '<option value="wasm">Processador (WASM)</option>';
 
-const worker = new Worker('worker.js?v=2', { type: 'module' });
+const worker = new Worker('worker.js?v=4', { type: 'module' });
 let audio = null, duracao = 0, inicio = 0, relogio = null, resultado = null;
 
 function mostrar(medidas) {
@@ -118,7 +119,7 @@ worker.onmessage = ({ data }) => {
   } else if (data.type === 'done') {
     clearInterval(relogio);
     resultado = {
-      modelo: $('modelo').value, modo: $('modo').value, idioma: $('idioma').value || 'detectar', versao: 2,
+      modelo: $('modelo').value, modo: $('modo').value, idioma: $('idioma').value || 'detectar', idioma_usado: data.idioma, versao: 3,
       audio_min: +(duracao / 60).toFixed(2),
       carregar_s: +(data.loadMs / 1000).toFixed(1),
       transcrever_s: +(data.runMs / 1000).toFixed(1),

@@ -9,10 +9,10 @@ const JANELA = SR / 10; // energia medida em janelas de 100 ms
 let asr = null;
 let loadedKey = '';
 
-function dtypeFor(device) {
-  return device === 'webgpu'
-    ? { encoder_model: 'fp32', decoder_model_merged: 'q4' }
-    : { encoder_model: 'q8', decoder_model_merged: 'q8' };
+function dtypeFor(model, device) {
+  if (device !== 'webgpu') return { encoder_model: 'q8', decoder_model_merged: 'q8' };
+  // o encoder do turbo em fp32 passa de 2 GB; em fp16 cabe na placa
+  return { encoder_model: model.includes('turbo') ? 'fp16' : 'fp32', decoder_model_merged: 'q4' };
 }
 
 // Corta na pausa mais silenciosa perto do limite de 30 s, para não partir palavra ao meio.
@@ -33,6 +33,24 @@ function cortes(audio) {
   return out;
 }
 
+// Idioma do arquivo inteiro, pelo primeiro trecho, como o app desktop faz.
+// Sem idioma, o transformers.js assume inglês e traduz tudo: por isso a detecção é feita aqui.
+async function detectarIdioma(trecho) {
+  const gc = asr.model.generation_config;
+  const { input_features } = await asr.processor(trecho);
+  const ids = (await asr.model.generate({
+    inputs: input_features, decoder_input_ids: [gc.decoder_start_token_id], max_new_tokens: 1,
+  })).tolist()[0];
+  const id = Number(ids[ids.length - 1]);
+  const token = Object.keys(gc.lang_to_id).find((k) => gc.lang_to_id[k] === id);
+  return token || '<|pt|>'; // ex.: "<|pt|>"
+}
+
+// O Whisper às vezes entra em laço ("network network network…"). Corta a repetição.
+function semLaco(texto) {
+  return texto.replace(/(\b[\p{L}\p{N}'’-]+(?:\s+[\p{L}\p{N}'’-]+){0,3})(?:[\s,.]+\1\b){3,}/giu, '$1');
+}
+
 self.onmessage = async ({ data }) => {
   const { model, device, audio, language } = data;
   try {
@@ -42,7 +60,7 @@ self.onmessage = async ({ data }) => {
       const t0 = performance.now();
       asr = await pipeline('automatic-speech-recognition', model, {
         device,
-        dtype: dtypeFor(device),
+        dtype: dtypeFor(model, device),
         progress_callback: (p) => {
           if (p.status === 'progress') self.postMessage({ type: 'download', file: p.file, loaded: p.loaded, total: p.total });
         },
@@ -53,15 +71,14 @@ self.onmessage = async ({ data }) => {
     const partes = cortes(audio);
     const textos = [];
     const t1 = performance.now();
+    const idioma = language || await detectarIdioma(audio.slice(partes[0][0], partes[0][1]));
     for (let i = 0; i < partes.length; i++) {
       const [a, b] = partes[i];
-      const opts = { task: 'transcribe' };
-      if (language) opts.language = language; // vazio: o Whisper detecta, como no desktop
-      const out = await asr(audio.slice(a, b), opts);
-      textos.push((out.text || '').trim());
+      const out = await asr(audio.slice(a, b), { task: 'transcribe', language: idioma });
+      textos.push(semLaco((out.text || '').trim()));
       self.postMessage({ type: 'chunk', done: i + 1, total: partes.length, ms: performance.now() - t1, text: textos[i] });
     }
-    self.postMessage({ type: 'done', loadMs, runMs: performance.now() - t1, text: textos.join('\n') });
+    self.postMessage({ type: 'done', loadMs, runMs: performance.now() - t1, idioma, text: textos.join('\n') });
   } catch (e) {
     self.postMessage({ type: 'error', message: String((e && e.message) || e) });
   }
