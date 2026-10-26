@@ -1,405 +1,614 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcriba — transcrição de áudio e vídeo em lote no seu computador</title>
-  <meta name="description" content="Transcreva dezenas de entrevistas, aulas e reuniões de uma vez, no seu computador. Grátis, sem conta e sem limite. O áudio nunca sai da sua máquina.">
-  <link rel="icon" href="img/icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
-  <!-- css/site.css é gerado pelo Tailwind a partir deste arquivo (comando em tailwind.config.js) -->
-  <link rel="stylesheet" href="css/site.css">
-  <style>
-    body {
-      background-color: #F2EFE9;
-      color: #141413;
-      font-family: 'Inter', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    .double-rule-bottom { border-bottom: 4px double #141413; }
-    .double-rule-top { border-top: 4px double #141413; }
-    .editorial-shadow { box-shadow: 6px 6px 0px #141413; }
-    .editorial-shadow-sm { box-shadow: 3px 3px 0px #141413; }
-    /* No celular, o botão de baixar dá lugar a "mandar o link para mim" (o script liga a classe). */
-    .cta-cel { display: none; }
-    html.celular .cta-pc { display: none; }
-    html.celular .cta-cel { display: block; }
-    /* Revelar ao rolar: o bloco sobe 40 px e aparece, um depois do outro. */
-    .rv { transition: opacity 600ms ease, transform 600ms cubic-bezier(.2,.7,.2,1); }
-    html.rv-js .rv:not(.on) { opacity: 0; transform: translateY(40px); }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transcriba — transcrição de áudio e vídeo em lote no seu computador</title>
+<meta name="description" content="Transcreva dezenas de entrevistas, aulas e reuniões de uma vez, no seu computador. Grátis, sem conta e sem limite. O áudio nunca sai da sua máquina.">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Abril+Fatface&display=swap" rel="stylesheet">
+<!-- css/site.css é gerado pelo Tailwind a partir deste arquivo (comando em tailwind.config.js) -->
+<link rel="stylesheet" href="css/site.css">
+<style>
+  /* Mundo único: papel de jornal (#F2EFE9) correndo numa prensa sobre fundo preto. Sem tema escuro alternativo. */
+  :root { --papel:#F2EFE9; --tinta:#141413; --mesa:#0c0c0b; --vermelho:#B82921; color-scheme: light; }
+  body { margin:0; background:var(--papel); color:var(--tinta); font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  .double-rule-bottom { border-bottom:4px double var(--tinta); }
+  .double-rule-top { border-top:4px double var(--tinta); }
+  .editorial-shadow { box-shadow:6px 6px 0 var(--tinta); }
+  .editorial-shadow-sm { box-shadow:3px 3px 0 var(--tinta); }
+  .cta-cel { display:none; } html.celular .cta-pc { display:none; } html.celular .cta-cel { display:block; }
+
+  /* ===== Modo prensa (computador): uma folha por vez ===== */
+  html.prensa, html.prensa body { height:100%; overflow:hidden; background:var(--mesa); }
+  html.prensa #mesa { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; padding:10px 0; }
+  .rolo { display:none; }
+  html.prensa .rolo { display:block; position:relative; z-index:3; height:34px; width:min(1260px,96vw); border-radius:17px; flex:none;
+    background:linear-gradient(180deg,#0f0f0e 0%,#3b3a37 22%,#9a978f 46%,#5c5a55 60%,#1c1b1a 100%);
+    box-shadow:0 10px 24px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.15); }
+  html.prensa .rolo::after { content:""; position:absolute; inset:0; border-radius:inherit; opacity:.35;
+    background:repeating-linear-gradient(180deg,transparent 0 5px,rgba(0,0,0,.55) 5px 6px); background-position:0 var(--giro,0px); }
+  html.prensa .rolo::before { content:""; position:absolute; top:6px; bottom:6px; left:-14px; right:-14px; z-index:-1; border-radius:6px;
+    background:linear-gradient(180deg,#2a2927,#55524d 50%,#232220); }
+  html.prensa #papel { position:relative; z-index:2; flex:1; width:min(1180px,92vw); margin:-8px 0; overflow:hidden; background:var(--papel);
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 30px 90px rgba(0,0,0,.65); }
+  html.prensa #papel::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:4;
+    background:linear-gradient(90deg,rgba(0,0,0,.07),transparent 3%,transparent 97%,rgba(0,0,0,.07)); }
+  html.prensa #trilho { position:absolute; left:0; right:0; top:0; will-change:transform; }
+  html.prensa .folha { height:var(--h); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  html.prensa .folha + .folha::before { content:""; position:absolute; top:0; left:28px; right:28px; border-top:1px dashed rgba(20,20,19,.28); }
+  html.prensa .folha::after { content:"⊕            ⊕"; position:absolute; bottom:6px; left:0; right:0; display:flex; justify-content:space-between; padding:0 10px;
+    font:12px/1 'IBM Plex Mono',monospace; color:rgba(20,20,19,.3); white-space:pre; }
+  html.prensa .folha-corpo { width:100%; max-width:1080px; padding:20px 48px; transform-origin:center center; }
+  #pontos, #seta { display:none; }
+  html.prensa #pontos { display:flex; position:fixed; right:max(14px,calc((100vw - min(1180px,92vw))/2 - 46px)); top:50%; transform:translateY(-50%); z-index:5;
+    flex-direction:column; gap:12px; align-items:center; }
+  #pontos button { width:10px; height:10px; border-radius:50%; border:1px solid #8d8a83; background:transparent; padding:0; cursor:pointer; }
+  #pontos button[aria-current="true"] { background:var(--papel); border-color:var(--papel); }
+  #pontos a { writing-mode:vertical-rl; transform:rotate(180deg); margin-top:10px; font:600 11px/1 'IBM Plex Mono',monospace; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--papel); background:var(--vermelho); padding:10px 5px; text-decoration:none; }
+  html.prensa #seta { display:flex; position:absolute; left:50%; bottom:18px; transform:translateX(-50%); z-index:5; gap:6px; align-items:center;
+    font:500 11px/1 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.1em; color:#66645E; background:none; border:0; cursor:pointer; }
+  #seta b { font-size:16px; display:inline-block; animation:pulo 1.6s ease-in-out infinite; }
+  @keyframes pulo { 50% { transform:translateY(4px); } }
+  button:focus-visible, a:focus-visible { outline:2px solid var(--vermelho); outline-offset:3px; }
+
+  /* ===== Modo rolagem (celular e janelas pequenas) ===== */
+  html.rolagem .folha { border-bottom:1px solid var(--tinta); }
+  html.rolagem .folha-corpo { max-width:1080px; margin:0 auto; padding:44px 16px; }
+
+  /* ===== Jornal ===== */
+  /* nome do jornal: Abril Fatface, letra de título de jornal e revista do século XIX (desenhada para o Grupo Abril) */
+  .gotica { font-family:'Abril Fatface','Newsreader',Georgia,serif; font-weight:400; letter-spacing:-.01em; }
+  .orelha-caixa { border:1px solid var(--tinta); padding:8px 12px; background:transparent; cursor:pointer; max-width:200px; }
+  .orelha-caixa:hover { background:#E6E2D8; }
+  .baixar-orelha { display:inline-block; background:var(--vermelho); color:#fff; font:600 14px/1 'Inter',sans-serif; padding:10px 16px; text-decoration:none; border:1px solid var(--tinta); box-shadow:3px 3px 0 var(--tinta); }
+  .baixar-orelha:hover { background:#961E17; }
+  .dateline { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--tinta); border-bottom:4px double var(--tinta);
+    padding:5px 2px; font:500 11px/1.3 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--tinta); }
+  .linha-fina { font:italic 400 20px/1.45 'Newsreader',Georgia,serif; color:#3d3c39; }
+  .texto-jornal { font:400 16px/1.5 'Newsreader',Georgia,serif; color:var(--tinta); text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
+  .capitular::first-letter { float:left; font:700 3.3em/.82 'Newsreader',Georgia,serif; margin:.06em .08em 0 0; color:var(--tinta); }
+  .folio { display:flex; justify-content:space-between; align-items:baseline; gap:12px; border-bottom:1px solid var(--tinta); padding-bottom:5px;
+    font:500 10px/1.2 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.1em; color:#66645E; }
+  .folio .gotica { font-size:20px; text-transform:none; letter-spacing:0; color:var(--tinta); }
+  html.prensa .folio { position:absolute; top:22px; left:48px; right:48px; z-index:1; }
+  html.rolagem .folio { margin:0 16px; padding-top:18px; }
+  .legenda { font:italic 400 13px/1.4 'Newsreader',Georgia,serif; color:#66645E; margin-top:10px; }
+  /* grão de papel */
+  html.prensa #papel, html.rolagem body { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .07 0 0 0 0 .05 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+  /* janela do programa no celular: vira uma "foto" da janela inteira, reduzida para a largura da tela */
+  .janela-moldura { overflow:hidden; padding:0 6px 6px 0; }
+  .janela-escala { width:1000px; transform-origin:top left; }
+
+  /* ===== Celular ===== */
+  @media (max-width: 639px) {
+    html .cabecalho { grid-template-columns:1fr 1fr; row-gap:14px; }
+    html .cabecalho .nome { grid-column:1 / -1; font-size:3.4rem; }
+    html .cabecalho .orelha-esq { justify-self:start; }
+    html .cabecalho .orelha-dir { justify-self:end; text-align:right; }
+    .orelha-caixa { padding:6px 10px; }
+    .orelha-caixa .font-mono { display:none; }
+    .orelha-caixa .font-serif { font-size:14px; }
+    .baixar-orelha { font-size:13px; padding:9px 12px; }
+    .dateline { justify-content:center; }
+    .dateline span:not(.data-hoje) { display:none; }
+    .folio span:nth-child(2), .folio-data { display:none; }
+    .folio .gotica { font-size:17px; }
+    .manchete { font-size:2.1rem !important; line-height:1.08 !important; }
+    .linha-fina { font-size:17px; }
+    .texto-jornal { font-size:16px; text-align:left; }
+    .carimbo { right:-4px; top:-26px; }
+    html.rolagem .folha-corpo { padding:32px 16px 40px; }
+  }
+  .w { display:inline-block; }
+  .perspectiva { perspective:1400px; }
+  .carimbo { position:absolute; right:-26px; top:-22px; font:700 15px/1 'IBM Plex Mono',monospace; letter-spacing:.2em; text-transform:uppercase; color:var(--vermelho);
+    border:3px double var(--vermelho); padding:7px 10px; background:rgba(242,239,233,.9); transform:rotate(-12deg); pointer-events:none; }
+  .regua { position:absolute; left:0; top:0; bottom:0; width:1px; background:var(--tinta); transform-origin:top; }
+  .cursor-ao-vivo::after { content:"▌"; color:var(--vermelho); }
+</style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-editorialRed selection:text-white">
+<body>
 
-  <!-- CABEÇALHO EDITORIAL -->
-  <header class="double-rule-bottom bg-paper sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-      <div class="flex items-baseline gap-3">
-        <a href="#" class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-ink no-underline">Transcriba</a>
-        <span class="font-mono text-[11px] text-inkMuted uppercase tracking-wider hidden md:inline-block">Edição Windows 10 / 11 · Uso local e gratuito</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <span class="font-mono text-xs text-inkMuted hidden sm:inline">Sem conta · Sem limite de horas</span>
-        <a href="#baixar" class="bg-ink hover:bg-editorialRed text-paper font-sans text-xs font-medium px-3.5 py-2 border border-ink transition">
-          Baixar
-        </a>
-      </div>
-    </div>
-  </header>
+<div id="mesa">
+  <div class="rolo" aria-hidden="true"></div>
+  <div id="papel">
+    <div id="trilho">
 
-  <!-- DOBRA 1: MANCHETE -->
-  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-10 pb-12 border-b border-ink">
-    <div class="text-center max-w-3xl mx-auto">
-      <div class="inline-flex flex-wrap justify-center items-center gap-2 mb-4">
-        <span class="bg-editorialRed text-white font-mono text-[11px] font-semibold px-2 py-0.5 uppercase tracking-wider">Gratuito</span>
-        <span class="font-mono text-xs text-inkMuted uppercase tracking-wide">Roda 100% no seu computador</span>
-      </div>
-      <h1 class="font-serif text-3xl sm:text-5xl font-bold text-ink leading-[1.12] tracking-tight mb-4">
-        Transcreva dezenas de entrevistas e aulas de uma só vez. Sem enviar seus áudios para a internet.
-      </h1>
-      <p class="text-base sm:text-lg text-inkMuted leading-relaxed mb-7 max-w-2xl mx-auto">
-        Solte uma pasta com gravações, clique em Transcrever e vá fazer outra coisa. Quando voltar, os textos estarão prontos na sua máquina, com sigilo total para a sua pesquisa ou o seu trabalho.
-      </p>
-      <div class="cta"></div>
-    </div>
-  </section>
-
-  <!-- DOBRA 2: OS 3 PILARES -->
-  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
-    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
-      <div class="pb-6 md:pb-0 md:pr-8 rv">
-        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Privacidade e ética</div>
-        <h2 class="font-serif text-2xl font-bold text-ink mb-2">O áudio nunca sai do seu computador.</h2>
-        <p class="text-sm text-inkMuted leading-relaxed">
-          Essencial para mestrado, doutorado, TCC com comitê de ética ou reuniões confidenciais. A internet só é usada uma vez, na primeira transcrição, para baixar o modelo de voz. Depois, funciona até com o Wi-Fi desligado.
-        </p>
-      </div>
-      <div class="py-6 md:py-0 md:px-8 rv">
-        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Em lote</div>
-        <h2 class="font-serif text-2xl font-bold text-ink mb-2">Solte a pasta inteira e vá descansar.</h2>
-        <p class="text-sm text-inkMuted leading-relaxed">
-          Nada de mandar arquivo por arquivo para um site. Arraste dezenas de entrevistas, aulas ou áudios de WhatsApp de uma vez. A fila mostra o andamento (<code class="font-mono text-xs">□ na fila</code>, <code class="font-mono text-xs">◧ transcrevendo</code>, <code class="font-mono text-xs">■ pronto</code>) e a hora prevista para terminar.
-        </p>
-      </div>
-      <div class="pt-6 md:pt-0 md:pl-8 rv">
-        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Gratuito de verdade</div>
-        <h2 class="font-serif text-2xl font-bold text-ink mb-2">Sem conta, assinatura nem limite de horas.</h2>
-        <p class="text-sm text-inkMuted leading-relaxed">
-          Serviços online costumam cobrar por minuto ou limitar o tamanho do arquivo. O Transcriba usa o processador da sua própria máquina, então não há servidor para pagar: você transcreve quantas horas quiser, sem criar login.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- DOBRA 3: A JANELA DO PROGRAMA -->
-  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink rv">
-    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-      <div class="flex flex-wrap items-center gap-1">
-        <span class="font-mono text-xs text-inkMuted mr-2">Veja o programa em ação:</span>
-        <button type="button" onclick="setAppState('running')" id="tab-running" class="px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium transition">
-          1. Durante o lote
-        </button>
-        <button type="button" onclick="setAppState('done')" id="tab-done" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper transition">
-          2. No fim do lote
-        </button>
-      </div>
-      <span class="font-mono text-[11px] text-inkMuted hidden sm:inline">Reprodução da janela do Transcriba no Windows</span>
-    </div>
-
-    <div class="border-2 border-ink bg-paper editorial-shadow overflow-hidden select-none" aria-label="Reprodução da janela do Transcriba">
-      <div class="px-4 py-2.5 double-rule-bottom flex flex-wrap items-center justify-between gap-2 bg-paper">
-        <div class="flex items-baseline gap-4">
-          <span class="font-serif text-2xl font-bold tracking-tight text-ink">Transcriba</span>
-          <span class="font-mono text-[11px] text-inkMuted uppercase tracking-wider hidden sm:inline">Domingo, 25 de outubro de 2026</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <div id="app-top-stats" class="font-sans text-xs text-ink"></div>
-          <span class="border border-ink/40 bg-paper px-2.5 py-1 text-xs text-ink hidden sm:inline">Configurações</span>
-        </div>
-      </div>
-
-      <div id="app-banner-running" class="px-4 py-3 border-b border-ink/40 flex flex-wrap items-center justify-between gap-4 bg-paper">
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Agora</span>
-          <span class="font-mono text-sm font-semibold text-ink">004</span>
-          <span class="font-serif text-xl sm:text-2xl font-bold text-ink truncate">Podcast ep. 41 - Cozinha mineira</span>
-        </div>
-        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-          <div class="w-40 sm:w-56 h-1.5 bg-ink/15 overflow-hidden"><div class="w-[62%] h-full bg-ink"></div></div>
-          <span class="font-mono text-xs font-bold text-ink">62%</span>
-          <span class="font-sans text-xs text-inkMuted">termina por volta de 23:40</span>
-        </div>
-      </div>
-
-      <div id="app-banner-done" class="hidden px-4 py-3 border-b border-ink/40 flex-wrap items-center justify-between gap-4 bg-paper">
-        <div class="flex items-center gap-3">
-          <span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Fim</span>
-          <span class="font-serif text-xl sm:text-2xl font-bold text-ink">7 transcritos · 1 com erro · 5h54</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="border border-ink bg-paper px-3 py-1 text-xs font-medium">Abrir pasta</span>
-          <span class="border border-ink bg-paper px-3 py-1 text-xs font-medium">Tentar de novo os que falharam</span>
-          <span class="text-xs underline ml-2 text-ink">Apoie o Transcriba</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[340px]">
-        <div class="lg:col-span-9 p-4 border-b lg:border-b-0 lg:border-r border-ink/40 min-w-0">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <span class="border border-ink/60 bg-paper px-2.5 py-1 text-xs">Adicionar arquivos</span>
-              <span class="border border-ink/60 bg-paper px-2.5 py-1 text-xs">Adicionar pasta</span>
-              <span class="font-serif italic text-xs text-inkMuted ml-1 hidden sm:inline">ou arraste arquivos para cá</span>
+      <!-- FOLHA 1: CAPA -->
+      <section class="folha" data-nome="Capa" aria-label="Capa">
+        <div class="folha-corpo"><div class="folha-tinta f1">
+          <div class="cabecalho grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+            <div class="orelha orelha-esq order-2 sm:order-1 justify-self-center sm:justify-self-start">
+              <button type="button" data-ir="1" class="orelha-caixa text-left">
+                <span class="block font-mono text-[10px] uppercase tracking-wider text-inkMuted">Nesta edição</span>
+                <span class="block font-serif font-bold text-base leading-tight">Sobre o Transcriba ↓</span>
+              </button>
             </div>
-            <span class="border border-ink/20 text-inkMuted px-2.5 py-1 text-xs hidden sm:inline">Remover</span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="border-b-2 border-ink font-mono text-[10px] text-ink uppercase">
-                  <th class="py-1.5 pr-2 w-10">Nº</th>
-                  <th class="py-1.5 px-2">Arquivo</th>
-                  <th class="py-1.5 px-2 w-20">Duração</th>
-                  <th class="py-1.5 px-2 w-40">Situação</th>
-                  <th class="py-1.5 pl-2">Saída</th>
-                </tr>
-              </thead>
-              <tbody id="app-table-body" class="divide-y divide-ink/15 font-sans"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="lg:col-span-3 flex flex-col bg-paper min-w-0">
-          <div class="px-3.5 py-2.5 border-b border-ink/40 flex items-center justify-between">
-            <div class="font-mono text-[11px]">
-              <strong id="app-sidebar-title" class="uppercase">Texto ao vivo</strong>
-              <span id="app-sidebar-sub" class="text-inkMuted ml-1">004 · Português</span>
+            <div class="nome gotica text-ink text-6xl sm:text-7xl leading-none text-center order-1 sm:order-2">Transcriba</div>
+            <div class="orelha orelha-dir order-3 justify-self-center sm:justify-self-end text-center sm:text-right">
+              <a class="baixar-orelha" data-baixar-topo data-goatcounter-click="baixar-portatil-topo" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip">↓ Baixar grátis</a>
+              <span class="block font-mono text-[10px] text-inkMuted mt-1">Windows 10 e 11 · 183 MB</span>
             </div>
-            <span class="border border-ink/50 px-2 py-0.5 text-[11px]">Ocultar</span>
           </div>
-          <div id="app-live-text" class="p-3.5 space-y-3 text-xs leading-relaxed text-ink"></div>
-        </div>
-      </div>
-
-      <div class="px-4 py-2.5 double-rule-top bg-paper flex flex-wrap items-center justify-between gap-3 text-[11px]">
-        <div class="flex flex-wrap items-center gap-4">
-          <div class="flex flex-wrap items-center gap-1">
-            <span class="font-mono text-[10px] text-inkMuted mr-1">SALVAR EM</span>
-            <span class="bg-ink text-paper px-2 py-1 font-medium">Pasta escolhida</span>
-            <span class="border border-ink/40 px-2 py-1 text-inkMuted">Junto de cada arquivo</span>
-            <span class="border border-ink px-2 py-1">Escolher</span>
+          <div class="dateline mt-3">
+            <span>Ano I · Edição 0.2.2</span>
+            <span class="data-hoje"></span>
+            <span>Distribuição gratuita</span>
           </div>
-          <div class="items-center gap-1 hidden md:flex">
-            <span class="font-mono text-[10px] text-inkMuted mr-1">FORMATOS</span>
-            <span class="bg-ink text-paper px-2 py-1 font-mono">.txt</span>
-            <span class="border border-ink/40 px-2 py-1 font-mono">.srt</span>
-            <span class="border border-ink/40 px-2 py-1">marcas de tempo</span>
+          <div class="max-w-4xl mx-auto text-center mt-8">
+            <div class="kicker inline-flex flex-wrap justify-center items-center gap-2 mb-4">
+              <span class="bg-editorialRed text-white font-mono text-[11px] font-semibold px-2 py-0.5 uppercase tracking-wider">Gratuito</span>
+              <span class="font-mono text-xs text-inkMuted uppercase tracking-wide">Roda 100% no seu computador</span>
+            </div>
+            <h1 class="manchete font-serif text-4xl sm:text-6xl font-bold text-ink leading-[1.05] tracking-tight mb-5">Transcreva dezenas de entrevistas e aulas de uma só vez. Sem enviar seus áudios para a internet.</h1>
+            <p class="lead linha-fina max-w-2xl mx-auto">Solte uma pasta com gravações, clique em Transcrever e vá fazer outra coisa. Quando voltar, os textos estarão prontos na sua máquina, com sigilo total para a sua pesquisa ou o seu trabalho.</p>
           </div>
-        </div>
-        <span id="app-bottom-btn" class="bg-editorialRed text-white font-medium px-4 py-1.5 inline-block"></span>
-      </div>
-    </div>
+        </div></div>
+      </section>
 
-    <p class="font-mono text-xs text-inkMuted mt-3 text-center">
-      ↑ A janela do programa. Toque em "1. Durante o lote" e "2. No fim do lote" para ver como ele avisa quando termina.
-    </p>
-  </section>
-
-  <!-- DOBRA 4: COMO FUNCIONA E FORMATOS -->
-  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <div class="lg:col-span-5 rv">
-        <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Feito para quem não é técnico</span>
-        <h2 class="font-serif text-3xl font-bold text-ink mt-1 mb-4">Três passos entre a gravação e o texto pronto para citar.</h2>
-        <p class="text-sm text-inkMuted leading-relaxed mb-6">
-          Você não precisa converter arquivos nem configurar nada. Se o arquivo toca no seu computador ou celular, o Transcriba lê.
-        </p>
-        <div class="bg-paperDark border border-ink p-4 space-y-2 text-xs">
-          <div class="font-mono font-semibold text-ink uppercase border-b border-ink/30 pb-1">Formatos que você pode arrastar direto</div>
-          <p><strong class="font-mono">Entradas:</strong> MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.</p>
-          <p><strong class="font-mono">Saídas:</strong> texto corrido (<code class="font-mono">.txt</code>), legenda (<code class="font-mono">.srt</code>) e texto com marcas de tempo (<code class="font-mono text-editorialRed">[00:14:02]</code>) para facilitar a conferência.</p>
-        </div>
-      </div>
-      <div class="lg:col-span-7 space-y-4">
-        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
-          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">1</span>
-          <div>
-            <h3 class="font-serif text-xl font-bold text-ink mb-1">Adicione os arquivos ou uma pasta inteira</h3>
-            <p class="text-sm text-inkMuted">Clique em "Adicionar pasta" ou arraste as gravações para a janela. Você vê na hora a duração de cada uma e o tempo total da fila.</p>
+      <!-- FOLHA 2: OS TRÊS ARGUMENTOS -->
+      <section class="folha" data-nome="Por que usar" aria-label="Por que usar">
+        <div class="folha-corpo"><div class="folha-tinta f2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-y-8">
+            <div class="col relative md:pr-8">
+              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Privacidade e ética</div>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">O áudio nunca sai do seu computador.</h2>
+              <p class="texto-jornal capitular">Essencial para mestrado, doutorado, TCC com comitê de ética ou reuniões confidenciais. A internet só é usada uma vez, na primeira transcrição, para baixar o modelo de voz. Depois, funciona até com o Wi-Fi desligado.</p>
+            </div>
+            <div class="col relative md:px-8"><span class="regua hidden md:block"></span>
+              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Em lote</div>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Solte a pasta inteira e vá descansar.</h2>
+              <p class="texto-jornal capitular">Nada de mandar arquivo por arquivo para um site. Arraste dezenas de entrevistas, aulas ou áudios de WhatsApp de uma vez. A fila mostra o andamento de cada arquivo (□ na fila, ◧ transcrevendo, ■ pronto) e a hora prevista para terminar.</p>
+            </div>
+            <div class="col relative md:pl-8"><span class="regua hidden md:block"></span>
+              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Gratuito de verdade</div>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Sem conta, assinatura nem limite de horas.</h2>
+              <p class="texto-jornal capitular">Serviços online costumam cobrar por minuto ou limitar o tamanho do arquivo. O Transcriba usa o processador da sua própria máquina, então não há servidor para pagar: você transcreve quantas horas quiser, sem criar login.</p>
+            </div>
           </div>
-        </div>
-        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
-          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">2</span>
-          <div>
-            <h3 class="font-serif text-xl font-bold text-ink mb-1">Escolha onde salvar e clique em Transcrever</h3>
-            <p class="text-sm text-inkMuted">Salve os textos numa pasta só ou junto de cada gravação, com o nome original ou numerados (<code class="font-mono text-xs">Transcricao_001.txt</code>).</p>
+        </div></div>
+      </section>
+
+      <!-- FOLHA 3: TRÊS PASSOS -->
+      <section class="folha" data-nome="Como funciona" aria-label="Como funciona">
+        <div class="folha-corpo"><div class="folha-tinta f3">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div class="intro lg:col-span-5">
+              <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Feito para quem não é técnico</span>
+              <h2 class="font-serif text-3xl font-bold text-ink mt-1 mb-4">Três passos entre a gravação e o texto pronto para citar.</h2>
+              <p class="texto-jornal mb-6">Você não precisa converter arquivos nem configurar nada. Se o arquivo toca no seu computador ou celular, o Transcriba lê.</p>
+              <div class="formatos bg-paperDark border border-ink p-4 space-y-2 text-xs">
+                <div class="font-mono font-semibold text-ink uppercase border-b border-ink/30 pb-1">Formatos que você pode arrastar direto</div>
+                <p><strong class="font-mono">Entradas:</strong> <span class="datilo" data-texto="MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.">MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.</span></p>
+                <p><strong class="font-mono">Saídas:</strong> texto corrido (<code class="font-mono">.txt</code>), legenda (<code class="font-mono">.srt</code>) e texto com marcas de tempo (<code class="font-mono text-editorialRed">[00:14:02]</code>).</p>
+              </div>
+            </div>
+            <div class="lg:col-span-7 space-y-4">
+              <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
+                <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">1</span>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Adicione os arquivos ou uma pasta inteira</h3>
+                <p class="text-sm text-inkMuted">Clique em "Adicionar pasta" ou arraste as gravações para a janela. Você vê na hora a duração de cada uma e o tempo total da fila.</p></div>
+              </div>
+              <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
+                <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">2</span>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Escolha onde salvar e clique em Transcrever</h3>
+                <p class="text-sm text-inkMuted">Salve os textos numa pasta só ou junto de cada gravação, com o nome original ou numerados (<code class="font-mono text-xs">Transcricao_001.txt</code>).</p></div>
+              </div>
+              <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
+                <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">3</span>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Acompanhe ao vivo ou volte quando terminar</h3>
+                <p class="text-sm text-inkMuted">O texto aparece na lateral enquanto é transcrito. Se houver um vídeo sem som (<code class="font-mono text-xs text-editorialRed">⊠ ERRO: vídeo sem trilha de áudio</code>), o programa avisa e continua os outros.</p></div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
-          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">3</span>
-          <div>
-            <h3 class="font-serif text-xl font-bold text-ink mb-1">Acompanhe ao vivo ou volte quando terminar</h3>
-            <p class="text-sm text-inkMuted">O texto aparece na lateral enquanto é transcrito. Se no meio do lote houver um vídeo sem som (<code class="font-mono text-xs text-editorialRed">⊠ ERRO: vídeo sem trilha de áudio</code>), o programa avisa e continua os outros.</p>
+        </div></div>
+      </section>
+
+      <!-- FOLHA 4: O QUE ESPERAR -->
+      <section class="folha" data-nome="O que esperar" aria-label="O que esperar">
+        <div class="folha-corpo"><div class="folha-tinta f4">
+          <div class="titulo mb-6 text-center">
+            <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Perguntas importantes antes de baixar</span>
+            <h2 class="font-serif text-4xl font-bold text-ink mt-1">O que esperar no seu computador</h2>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
+          <div class="perspectiva grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="caixa-esq border border-ink bg-paperDark p-6">
+              <div class="flex items-center justify-between mb-2">
+                <div class="font-mono text-xs font-semibold uppercase text-editorialRed">Tempo de transcrição</div>
+                <svg class="relogio" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="none" stroke="#141413" stroke-width="2"/><line x1="17" y1="17" x2="17" y2="8" stroke="#141413" stroke-width="2"/><line class="ponteiro" x1="17" y1="17" x2="17" y2="5" stroke="#B82921" stroke-width="2" stroke-linecap="square"/><circle cx="17" cy="17" r="2" fill="#141413"/></svg>
+              </div>
+              <h3 class="font-serif text-2xl font-bold text-ink mb-3">Quanto tempo demora?</h3>
+              <div class="space-y-3 text-sm text-ink leading-relaxed">
+                <p><strong>Em notebooks e computadores comuns:</strong> perto de <strong class="font-mono">1 para 1</strong>. Uma hora de gravação leva cerca de uma hora para virar texto. Por isso o lote ajuda: deixe a pasta rodando no almoço ou à noite.</p>
+                <p class="pt-2 border-t border-ink/20"><strong>Com placa de vídeo NVIDIA:</strong> fica <strong>bem mais rápido</strong>. O Transcriba reconhece a placa sozinho.</p>
+              </div>
+            </div>
+            <div class="caixa-dir border border-ink bg-paperDark p-6">
+              <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Requisitos e primeiro uso</div>
+              <h3 class="font-serif text-2xl font-bold text-ink mb-3">Funciona no meu Windows?</h3>
+              <ul class="space-y-2 text-sm text-ink leading-relaxed">
+                <li><strong>Sistema:</strong> Windows 10 ou 11, 64 bits.</li>
+                <li><strong>Extraia antes de abrir:</strong> botão direito no arquivo baixado, "Extrair tudo". Não abra o programa de dentro do .zip.</li>
+                <li><strong>Primeira transcrição:</strong> baixa o modelo de voz uma vez (de 150 MB a 1,6 GB).</li>
+                <li class="pt-2 border-t border-ink/20"><strong>Aviso do Windows ao abrir:</strong> se aparecer <em>"O Windows protegeu o computador"</em>, clique em <strong>"Mais informações"</strong> e em <strong>"Executar assim mesmo"</strong>.</li>
+              </ul>
+            </div>
+          </div>
+        </div></div>
+      </section>
 
-  <!-- DOBRA 5: O QUE ESPERAR -->
-  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
-    <div class="mb-6 rv">
-      <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Perguntas importantes antes de baixar</span>
-      <h2 class="font-serif text-3xl font-bold text-ink mt-1">O que esperar no seu computador</h2>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="border border-ink bg-paperDark p-6 rv">
-        <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Tempo de transcrição</div>
-        <h3 class="font-serif text-2xl font-bold text-ink mb-3">Quanto tempo demora?</h3>
-        <div class="space-y-3 text-sm text-ink leading-relaxed">
-          <p><strong>Em notebooks e computadores comuns:</strong> perto de <strong>1 para 1</strong>. Uma hora de gravação leva cerca de uma hora para virar texto. Por isso o lote ajuda: deixe a pasta rodando no almoço ou à noite e encontre tudo pronto.</p>
-          <p class="pt-2 border-t border-ink/20"><strong>Com placa de vídeo NVIDIA:</strong> fica <strong>bem mais rápido</strong>. O Transcriba reconhece a placa sozinho, sem configurar nada.</p>
-        </div>
-      </div>
-      <div class="border border-ink bg-paperDark p-6 rv">
-        <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Requisitos e primeiro uso</div>
-        <h3 class="font-serif text-2xl font-bold text-ink mb-3">Funciona no meu Windows?</h3>
-        <ul class="space-y-2.5 text-sm text-ink leading-relaxed">
-          <li><strong>Sistema:</strong> Windows 10 ou 11, 64 bits.</li>
-          <li><strong>Extraia antes de abrir:</strong> clique com o botão direito no arquivo baixado e escolha "Extrair tudo". Não abra o programa de dentro do .zip.</li>
-          <li><strong>Primeira transcrição:</strong> o programa usa a internet uma vez para baixar o modelo de voz (de 150 MB a 1,6 GB).</li>
-          <li class="pt-2 border-t border-ink/20"><strong>Aviso do Windows ao abrir:</strong> por ser um programa independente e gratuito, o Windows pode mostrar a janela azul <em>"O Windows protegeu o computador"</em>. Clique em <strong>"Mais informações"</strong> e depois em <strong>"Executar assim mesmo"</strong>.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+      <!-- FOLHA 5: A JANELA DO PROGRAMA -->
+      <section class="folha" data-nome="O programa" aria-label="O programa em ação">
+        <div class="folha-corpo"><div class="folha-tinta f5">
+          <div class="cabeca-janela flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="font-mono text-xs text-inkMuted mr-2">Veja o programa em ação:</span>
+              <button type="button" data-estado="rever" class="px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium">▶ Rever o lote</button>
+              <button type="button" data-estado="running" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper">1. Durante o lote</button>
+              <button type="button" data-estado="done" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper">2. No fim do lote</button>
+            </div>
+            <span class="font-mono text-[11px] text-inkMuted hidden sm:inline">Reprodução da janela do Transcriba no Windows</span>
+          </div>
+          <div class="janela border-2 border-ink bg-paper editorial-shadow overflow-hidden select-none" aria-label="Reprodução da janela do Transcriba">
+            <div class="px-4 py-2.5 double-rule-bottom flex flex-wrap items-center justify-between gap-2 bg-paper">
+              <div class="flex items-baseline gap-4"><span class="font-serif text-2xl font-bold tracking-tight text-ink">Transcriba</span>
+                <span class="font-mono text-[11px] text-inkMuted uppercase tracking-wider hidden sm:inline">Domingo, 25 de outubro de 2026</span></div>
+              <div id="app-top-stats" class="font-sans text-xs text-ink"></div>
+            </div>
+            <div id="app-banner" class="px-4 py-3 border-b border-ink/40 flex flex-wrap items-center justify-between gap-4 bg-paper min-h-[64px]"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-12">
+              <div class="lg:col-span-9 p-4 border-b lg:border-b-0 lg:border-r border-ink/40 min-w-0">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead><tr class="border-b-2 border-ink font-mono text-[10px] text-ink uppercase">
+                      <th class="py-1.5 pr-2 w-10">Nº</th><th class="py-1.5 px-2">Arquivo</th><th class="py-1.5 px-2 w-20">Duração</th><th class="py-1.5 px-2 w-40">Situação</th><th class="py-1.5 pl-2">Saída</th></tr></thead>
+                    <tbody id="app-table-body" class="divide-y divide-ink/15 font-sans"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="lg:col-span-3 flex flex-col bg-paper min-w-0">
+                <div class="px-3.5 py-2.5 border-b border-ink/40 font-mono text-[11px]"><strong id="app-side-title" class="uppercase">Texto ao vivo</strong> <span id="app-side-sub" class="text-inkMuted ml-1"></span></div>
+                <div id="app-live-text" class="p-3.5 space-y-3 text-xs leading-relaxed text-ink min-h-[150px]"></div>
+              </div>
+            </div>
+          </div>
+          <p class="legenda">▲ A fila do Transcriba durante um lote: o que está pronto, o que está sendo transcrito e o texto aparecendo ao vivo. Reprodução da janela.</p>
+        </div></div>
+      </section>
 
-  <!-- DOBRA 6: APOIO E DOWNLOAD FINAL -->
-  <section id="baixar" class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-14 text-center scroll-mt-16">
-    <div class="inline-block border border-ink bg-paperDark px-4 py-2 mb-6 text-xs text-ink rv">
-      <strong>Por que é gratuito?</strong> O Transcriba é mantido de forma independente para pesquisadores, estudantes e professores. Se ele te poupar dias de trabalho, há um "Apoie o Transcriba" por Pix dentro do programa. Não é obrigatório.
-    </div>
-    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3 rv">Pronto para parar de transcrever no braço?</h2>
-    <p class="text-base text-inkMuted mb-8 max-w-xl mx-auto rv">Baixe o Transcriba grátis para Windows, solte a pasta de gravações e deixe o computador trabalhar por você.</p>
-    <div class="cta"></div>
-  </section>
+      <!-- FOLHA 6: BAIXAR -->
+      <section class="folha" data-nome="Baixar" aria-label="Baixar" id="baixar">
+        <div class="folha-corpo"><div class="folha-tinta f6 text-center max-w-3xl mx-auto">
+          <div class="porque inline-block border border-ink bg-paperDark px-4 py-2 mb-6 text-xs text-ink">
+            <strong>Por que é gratuito?</strong> O Transcriba é mantido de forma independente para pesquisadores, estudantes e professores. Se ele te poupar dias de trabalho, há um "Apoie o Transcriba" por Pix dentro do programa. Não é obrigatório.
+          </div>
+          <h2 class="final font-serif text-4xl sm:text-5xl font-bold text-ink mb-3">Pronto para parar de transcrever no braço?</h2>
+          <p class="sub text-base text-inkMuted mb-8 max-w-xl mx-auto">Baixe o Transcriba grátis para Windows, solte a pasta de gravações e deixe o computador trabalhar por você.</p>
+          <div class="cta relative inline-block"><span class="carimbo" aria-hidden="true">Grátis</span></div>
+          <div class="rodape double-rule-top mt-10 pt-4 font-mono text-[11px] text-inkMuted flex flex-wrap justify-between gap-2">
+            <span><strong class="font-serif text-sm text-ink">Transcriba 0.2.2</strong> · <a class="underline" href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></span>
+            <span>O programa não envia nada. Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais.</span>
+          </div>
+        </div></div>
+      </section>
 
-  <footer class="double-rule-top bg-paperDark py-6 px-4 sm:px-6 font-mono text-xs text-inkMuted mt-auto">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
-      <div><strong class="font-serif text-base text-ink mr-2">Transcriba 0.2.2</strong> · Programa gratuito para Windows 10 e 11 · <a class="underline" href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></div>
-      <div>O programa não envia nada. Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais.</div>
     </div>
-  </footer>
+    <button id="seta" type="button" aria-label="Próxima folha"><span>Role</span><b>↓</b></button>
+  </div>
+  <div class="rolo" aria-hidden="true"></div>
+  <nav id="pontos" aria-label="Folhas"></nav>
+</div>
 
-  <!-- Modelo dos botões de baixar (usado nas duas dobras de download) -->
-  <template id="tpl-cta">
-    <div class="cta-pc">
-      <div class="inline-flex flex-col items-center">
-        <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2"
-           class="bg-editorialRed hover:bg-editorialRedHover text-white font-sans font-semibold text-base sm:text-lg px-8 py-4 border border-ink editorial-shadow-sm transition">
-          ↓ Baixar o Transcriba para Windows
-        </a>
-        <span class="font-mono text-xs text-inkMuted mt-2.5">Versão portátil · 183 MB · não precisa instalar · grátis e sem limite</span>
-        <span class="font-sans text-sm text-inkMuted mt-1.5">Prefere instalar com atalho no menu Iniciar? <a class="underline text-ink" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</span>
-      </div>
+<template id="tpl-cta">
+  <div class="cta-pc">
+    <div class="inline-flex flex-col items-center">
+      <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2" class="botao bg-editorialRed hover:bg-editorialRedHover text-white font-sans font-semibold text-base sm:text-lg px-8 py-4 border border-ink editorial-shadow-sm">↓ Baixar o Transcriba para Windows</a>
+      <span class="font-mono text-xs text-inkMuted mt-2.5">Versão portátil · 183 MB · não precisa instalar · grátis e sem limite</span>
+      <span class="font-sans text-sm text-inkMuted mt-1.5">Prefere instalar? <a class="underline text-ink" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</span>
     </div>
-    <div class="cta-cel">
-      <div class="bg-paperDark border-2 border-ink p-4 text-left max-w-md mx-auto">
-        <div class="font-mono text-[11px] text-editorialRed font-bold uppercase mb-1">Você está no celular</div>
-        <p class="text-sm text-ink mb-3 leading-relaxed">O Transcriba é um programa para computador com Windows 10 ou 11. Mande o link para você e abra no computador.</p>
-        <a href="#" data-compartilhar data-goatcounter-click="mandar-link-celular" class="w-full bg-ink hover:bg-editorialRed text-paper font-sans font-semibold text-sm py-3 px-4 mb-2 transition text-center block">Mandar o link para mim</a>
-        <div class="text-center">
-          <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-celular" class="font-mono text-[11px] text-inkMuted underline">Ou baixar o .zip aqui mesmo</a>
-        </div>
-      </div>
+  </div>
+  <div class="cta-cel">
+    <div class="bg-paperDark border-2 border-ink p-4 text-left max-w-md mx-auto">
+      <div class="font-mono text-[11px] text-editorialRed font-bold uppercase mb-1">Você está no celular</div>
+      <p class="text-sm text-ink mb-3 leading-relaxed">O Transcriba é um programa para computador com Windows 10 ou 11. Mande o link para você e abra no computador.</p>
+      <a href="#" data-compartilhar data-goatcounter-click="mandar-link-celular" class="w-full bg-ink text-paper font-sans font-semibold text-sm py-3 px-4 mb-2 text-center block">Mandar o link para mim</a>
+      <div class="text-center"><a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-celular" class="font-mono text-[11px] text-inkMuted underline">Ou baixar o .zip aqui mesmo</a></div>
     </div>
-  </template>
+  </div>
+</template>
 
-  <script>
-    // Celular: tela de toque e estreita. O botão de baixar vira "mandar o link para mim".
-    var toque = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    if (toque && !matchMedia('(min-width: 1024px)').matches) {
-      document.documentElement.classList.add('celular');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function () {
+  var html = document.documentElement;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var parado = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var modoPrensa = matchMedia('(min-width: 1024px) and (min-height: 600px) and (hover: hover)');
+  html.classList.add(modoPrensa.matches ? 'prensa' : 'rolagem');
+  modoPrensa.addEventListener('change', function () { location.reload(); });
+
+  // Botões de baixar (no celular: mandar o link para si)
+  var toque = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if (toque && !matchMedia('(min-width: 1024px)').matches) html.classList.add('celular');
+  $$('.cta').forEach(function (c) { c.insertBefore($('#tpl-cta').content.cloneNode(true), c.firstChild); });
+  $$('[data-compartilhar]').forEach(function (a) {
+    var texto = 'Transcriba: programa gratuito que transcreve entrevistas e aulas no Windows. Baixe no computador: https://fabriciocotrim.github.io/transcriba/';
+    a.href = 'https://wa.me/?text=' + encodeURIComponent(texto);
+    a.addEventListener('click', function (e) { if (!navigator.share) return; e.preventDefault(); navigator.share({ title: 'Transcriba', text: texto }).catch(function () {}); });
+  });
+
+  /* ---------- Jornal: data do dia, cabeçalho das páginas internas, orelhas ---------- */
+  var hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $$('.data-hoje').forEach(function (s) { s.textContent = hoje; });
+  $$('.folha').forEach(function (f, n) {
+    if (!n) return;
+    f.insertAdjacentHTML('afterbegin', '<div class="folio" aria-hidden="true"><span class="gotica">Transcriba</span><span>' + f.dataset.nome
+      + '</span><span>Página ' + (n + 1) + '<span class="folio-data"> · ' + hoje.replace(/^[^,]+, /, '') + '</span></span></div>');
+  });
+  // no celular, a janela do programa é desenhada no tamanho de computador e reduzida, como uma foto
+  if (html.classList.contains('rolagem')) {
+    var janela = $('.janela'), moldura = document.createElement('div'), escala = document.createElement('div');
+    moldura.className = 'janela-moldura'; escala.className = 'janela-escala';
+    janela.parentNode.insertBefore(moldura, janela); moldura.appendChild(escala); escala.appendChild(janela);
+    var ajustar = function () {
+      var s = Math.min(1, (moldura.clientWidth - 6) / 1000); // 6: espaço da sombra
+      escala.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+      moldura.style.height = s < 1 ? Math.ceil(janela.offsetHeight * s) + 8 + 'px' : '';
+    };
+    ajustar(); window.addEventListener('resize', ajustar);
+    if ('ResizeObserver' in window) new ResizeObserver(ajustar).observe(janela);
+  }
+  var irPara = function (n) { $$('.folha')[n].scrollIntoView({ behavior: parado ? 'auto' : 'smooth' }); };
+  $$('[data-ir]').forEach(function (b) { b.addEventListener('click', function () { irPara(+b.dataset.ir); }); });
+  // no celular, "Baixar" do alto leva ao bloco de baixar (lá ele oferece mandar o link para o computador)
+  if (html.classList.contains('celular')) $$('[data-baixar-topo]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); irPara($$('.folha').length - 1); });
+  });
+
+  /* ---------- A janela do programa: a fila anda sozinha ---------- */
+  var FILA = [
+    { num: '001', nome: 'Aula 03 - Revolução Industrial.mp4', dur: '52:14', out: 'Transcricao_001.txt' },
+    { num: '002', nome: 'Entrevista Dona Cida.m4a', dur: '1:08:40', out: 'Transcricao_002.txt' },
+    { num: '003', nome: 'Reunião pais e mestres 12-09.mp4', dur: '47:02', erro: 'Vídeo sem trilha de áudio' },
+    { num: '004', nome: 'Podcast ep. 41 - Cozinha mineira.mp3', dur: '38:55', out: 'Transcricao_004.txt',
+      fala: [['00:24:02', 'e aí o segredo do pão de queijo é o polvilho azedo, não adianta.'], ['00:24:09', 'A minha avó escaldava o polvilho com leite fervendo e óleo.']] },
+    { num: '005', nome: 'Palestra Semana da Saúde.mp4', dur: '1:21:33', out: 'Transcricao_005.txt',
+      fala: [['00:12:40', 'Dormir bem é a primeira linha de cuidado, antes de qualquer remédio.'], ['00:12:51', 'Quem dorme menos de seis horas sente isso na pressão.']] },
+    { num: '006', nome: 'Áudio WhatsApp 2026-09-30.ogg', dur: '3:12', out: 'Transcricao_006.txt',
+      fala: [['00:00:04', 'Oi, gente, a reunião de sexta passou para as dez, tá?']] },
+    { num: '007', nome: 'Ensaio coral.wav', dur: '12:40', out: 'Transcricao_007.txt',
+      fala: [['00:03:15', 'Do começo do segundo verso, contraltos entrando junto.']] },
+    { num: '008', nome: 'Aula 04 - Primeira Guerra.mp4', dur: '49:50', out: 'Transcricao_008.txt',
+      fala: [['00:49:21', 'E foi assim que a guerra terminou, com o armistício assinado num vagão de trem.']] }
+  ];
+  var INICIO = 3, FIM = FILA.length;
+  var marca = function (t) { return '<span class="font-mono text-[11px] text-editorialRed font-semibold mr-1">' + t + '</span>'; };
+  var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+
+  // k vai de 3 (começa o 004) a 8 (fim do lote); a parte fracionária é o % do arquivo atual
+  function renderJanela(k) {
+    var atual = Math.floor(k), pct = Math.round((k - atual) * 100), fim = k >= FIM;
+    var prontos = 0, fila = 0;
+    $('#app-table-body').innerHTML = FILA.map(function (f, i) {
+      var st, cls;
+      if (f.erro) { st = '<span class="text-editorialRed font-mono font-semibold">⊠ ERRO</span>'; cls = 'text-ink'; }
+      else if (i < atual || fim) { st = '<span class="font-mono font-semibold">■ PRONTO</span>'; cls = 'text-ink'; prontos++; }
+      else if (i === atual) { st = '<span class="font-mono font-semibold">◧ TRANSCREVENDO ' + pct + '%</span>'; cls = 'bg-paperRow font-semibold'; }
+      else { st = '<span class="font-mono font-semibold text-inkMuted">□ NA FILA</span>'; cls = 'text-inkMuted'; fila++; }
+      var saida = f.erro ? '<span class="text-editorialRed">' + f.erro + '</span>' : ((i < atual || fim) ? f.out : '');
+      return '<tr class="' + cls + '"><td class="py-2 pr-2 font-mono text-[11px]">' + f.num + '</td><td class="py-2 px-2 whitespace-nowrap">' + esc(f.nome)
+        + '</td><td class="py-2 px-2 font-mono text-[11px]">' + f.dur + '</td><td class="py-2 px-2 text-[11px] whitespace-nowrap">' + st
+        + '</td><td class="py-2 pl-2 text-[11px] whitespace-nowrap font-mono text-inkMuted">' + saida + '</td></tr>';
+    }).join('');
+    $('#app-top-stats').innerHTML = '<strong>8 arquivos</strong> · <span class="text-inkMuted">5h54 de áudio</span> · <strong>' + prontos + ' prontos</strong> · <span class="text-editorialRed font-semibold">1 com erro</span>' + (fila ? ' · <span class="text-inkMuted">' + fila + ' na fila</span>' : '');
+    var f = FILA[Math.min(atual, FIM - 1)];
+    if (fim) {
+      $('#app-banner').innerHTML = '<div class="flex items-center gap-3"><span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Fim</span><span class="font-serif text-xl sm:text-2xl font-bold text-ink">7 transcritos · 1 com erro · 5h54</span></div>'
+        + '<div class="flex flex-wrap items-center gap-2"><span class="border border-ink bg-paper px-3 py-1 text-xs font-medium">Abrir pasta</span><span class="text-xs underline ml-2 text-ink">Apoie o Transcriba</span></div>';
+      $('#app-side-title').textContent = 'Último texto'; $('#app-side-sub').textContent = '008 · Português';
+      $('#app-live-text').innerHTML = FILA[FIM - 1].fala.map(function (l) { return '<p>' + marca(l[0]) + l[1] + '</p>'; }).join('');
+      return;
     }
-    var tpl = document.getElementById('tpl-cta');
-    document.querySelectorAll('.cta').forEach(function (c) { c.appendChild(tpl.content.cloneNode(true)); });
-    document.querySelectorAll('[data-compartilhar]').forEach(function (a) {
-      var texto = 'Transcriba: programa gratuito que transcreve entrevistas e aulas no Windows. Baixe no computador: ' + location.href.split('#')[0];
-      a.href = 'https://wa.me/?text=' + encodeURIComponent(texto);
-      a.addEventListener('click', function (e) {
-        if (!navigator.share) return; // sem a folha de compartilhar: segue o link do WhatsApp
-        e.preventDefault();
-        navigator.share({ title: 'Transcriba', text: texto }).catch(function () {});
-      });
+    $('#app-banner').innerHTML = '<div class="flex items-center gap-3 min-w-0"><span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Agora</span><span class="font-mono text-sm font-semibold text-ink">' + f.num + '</span><span class="font-serif text-xl sm:text-2xl font-bold text-ink truncate">' + esc(f.nome.replace(/\.[^.]+$/, '')) + '</span></div>'
+      + '<div class="flex items-center gap-3"><div class="w-40 sm:w-56 h-1.5 bg-ink/15 overflow-hidden"><div class="h-full bg-ink" style="width:' + pct + '%"></div></div><span class="font-mono text-xs font-bold text-ink w-9">' + pct + '%</span><span class="font-sans text-xs text-inkMuted">termina por volta de 23:40</span></div>';
+    $('#app-side-title').textContent = 'Texto ao vivo'; $('#app-side-sub').textContent = f.num + ' · Português';
+    // o texto do arquivo atual é datilografado conforme o %
+    var total = f.fala.reduce(function (a, l) { return a + l[1].length; }, 0), resta = Math.round(total * (k - atual) * 1.15);
+    $('#app-live-text').innerHTML = f.fala.map(function (l, j) {
+      if (resta <= 0) return '';
+      var t = l[1].slice(0, resta); resta -= l[1].length;
+      var ultimo = resta <= 0 || j === f.fala.length - 1;
+      return '<p' + (ultimo ? ' class="cursor-ao-vivo"' : '') + '>' + marca(l[0]) + t + '</p>';
+    }).join('');
+  }
+  var lote = { k: INICIO + 0.62 };
+  renderJanela(lote.k);
+  var loteTl = null;
+  function rodarLote() {
+    if (loteTl) loteTl.kill();
+    lote.k = INICIO;
+    loteTl = gsap.to(lote, { k: FIM, duration: 7, ease: 'none', onUpdate: function () { renderJanela(lote.k); } });
+    return loteTl;
+  }
+  $$('[data-estado]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $$('[data-estado]').forEach(function (x) { x.className = x === b ? 'px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium' : 'px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper'; });
+      if (loteTl) loteTl.kill();
+      if (b.dataset.estado === 'rever') rodarLote();
+      else renderJanela(b.dataset.estado === 'done' ? FIM : INICIO + 0.62);
     });
+  });
 
-    // A janela do programa: dados das duas capturas reais (durante e no fim do lote).
-    var filesData = [
-      { num: '001', name: 'Aula 03 - Revolução Industrial.mp4', dur: '52:14', statusRun: 'PRONTO', statusDone: 'PRONTO', out: 'Transcricao_001.txt' },
-      { num: '002', name: 'Entrevista Dona Cida.m4a', dur: '1:08:40', statusRun: 'PRONTO', statusDone: 'PRONTO', out: 'Transcricao_002.txt' },
-      { num: '003', name: 'Reunião pais e mestres 12-09.mp4', dur: '47:02', statusRun: 'ERRO', statusDone: 'ERRO', out: 'Vídeo sem trilha de áudio' },
-      { num: '004', name: 'Podcast ep. 41 - Cozinha mineira.mp3', dur: '38:55', statusRun: 'TRANSCREVENDO 62%', statusDone: 'PRONTO', out: 'Transcricao_004.txt' },
-      { num: '005', name: 'Palestra Semana da Saúde.mp4', dur: '1:21:33', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_005.txt' },
-      { num: '006', name: 'Áudio WhatsApp 2026-09-30.ogg', dur: '3:12', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_006.txt' },
-      { num: '007', name: 'Ensaio coral.wav', dur: '12:40', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_007.txt' },
-      { num: '008', name: 'Aula 04 - Primeira Guerra.mp4', dur: '49:50', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_008.txt' }
-    ];
-    var TAB_ON = 'px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium transition';
-    var TAB_OFF = 'px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper transition';
-    var marca = function (t) { return '<span class="font-mono text-[11px] text-editorialRed font-semibold mr-1">' + t + '</span>'; };
-
-    function setAppState(state) {
-      var run = state === 'running', $ = function (id) { return document.getElementById(id); };
-      $('tab-running').className = run ? TAB_ON : TAB_OFF;
-      $('tab-done').className = run ? TAB_OFF : TAB_ON;
-      $('app-banner-running').classList.toggle('hidden', !run);
-      $('app-banner-done').classList.toggle('hidden', run);
-      $('app-banner-done').classList.toggle('flex', !run);
-      $('app-top-stats').innerHTML = run
-        ? '<strong>8 arquivos</strong> · <span class="text-inkMuted">5h54 de áudio</span> · <strong>2 prontos</strong> · <span class="text-editorialRed font-semibold">1 com erro</span> · <span class="text-inkMuted">4 na fila</span>'
-        : '<strong>8 arquivos</strong> · <span class="text-inkMuted">5h54 de áudio</span> · <strong>7 prontos</strong> · <span class="text-editorialRed font-semibold">1 com erro</span>';
-      $('app-sidebar-title').textContent = run ? 'Texto ao vivo' : 'Último texto';
-      $('app-sidebar-sub').textContent = run ? '004 · Português' : '008 · Português';
-      $('app-live-text').innerHTML = run
-        ? '<p>' + marca('00:24:02') + 'e aí o segredo do pão de queijo é o polvilho azedo, não adianta.</p>'
-          + '<p>' + marca('00:24:09') + 'A minha avó escaldava o polvilho com leite fervendo e óleo.</p>'
-          + '<p>' + marca('00:24:21') + 'O queijo tem que ser meia-cura, ralado grosso.</p>'
-        : '<p>' + marca('00:49:21') + 'E foi assim que a guerra terminou, com o armistício assinado num vagão de trem.</p>';
-      $('app-bottom-btn').textContent = run ? 'Cancelar lote' : 'Tentar de novo (1 com erro)';
-      $('app-table-body').innerHTML = filesData.map(function (f) {
-        var st = run ? f.statusRun : f.statusDone;
-        var atual = st.indexOf('TRANSCREVENDO') === 0, erro = st === 'ERRO', fila = st === 'NA FILA';
-        var icone = erro ? '⊠' : (atual ? '◧' : (fila ? '□' : '■'));
-        var situacao = erro
-          ? '<span class="text-editorialRed font-mono font-semibold">' + icone + ' ERRO</span>'
-          : '<span class="font-mono font-semibold ' + (fila ? 'text-inkMuted' : 'text-ink') + '">' + icone + ' ' + st + '</span>';
-        return '<tr class="' + (atual ? 'bg-paperRow font-semibold' : (fila ? 'text-inkMuted' : 'text-ink')) + '">'
-          + '<td class="py-2 pr-2 font-mono text-[11px]">' + f.num + '</td>'
-          + '<td class="py-2 px-2 whitespace-nowrap">' + f.name + '</td>'
-          + '<td class="py-2 px-2 font-mono text-[11px]">' + f.dur + '</td>'
-          + '<td class="py-2 px-2 text-[11px] whitespace-nowrap">' + situacao + '</td>'
-          + '<td class="py-2 pl-2 text-[11px] whitespace-nowrap ' + (erro ? 'text-editorialRed font-sans' : 'font-mono text-inkMuted') + '">' + (fila || atual ? '' : f.out) + '</td>'
-          + '</tr>';
-      }).join('');
+  /* ---------- Movimento de cada folha (um diferente por folha) ---------- */
+  function linhas(el) {
+    // separa a manchete em palavras e agrupa por linha, para a linotipo cair linha por linha
+    if (!el.dataset.feito) { el.innerHTML = el.textContent.split(' ').map(function (w) { return '<span class="w">' + w + '</span>'; }).join(' '); el.dataset.feito = 1; }
+    var grupos = [], topo = null;
+    $$('.w', el).forEach(function (w) { if (w.offsetTop !== topo) { grupos.push([]); topo = w.offsetTop; } grupos[grupos.length - 1].push(w); });
+    return grupos;
+  }
+  function datilografar(el, dur) {
+    var texto = el.dataset.texto, o = { n: 0 };
+    return gsap.fromTo(o, { n: 0 }, { n: texto.length, duration: dur, ease: 'none', onUpdate: function () { el.textContent = texto.slice(0, Math.round(o.n)); } });
+  }
+  var ENTRADAS = [
+    function (f) { // 1 Capa: o nome gótico se imprime, as orelhas encostam, a faixa de data corre, a manchete cai linha por linha como linotipo
+      var tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .fromTo($('.nome', f), { clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)', duration: .8, ease: 'power2.inOut' })
+        .from($('.orelha-esq', f), { x: -40, autoAlpha: 0, duration: .5 }, '-=.3')
+        .from($('.orelha-dir', f), { x: 40, autoAlpha: 0, duration: .5 }, '<')
+        .from($('.dateline', f), { scaleX: 0, duration: .6, ease: 'power2.inOut' }, '-=.3')
+        .from($('.kicker', f), { autoAlpha: 0, y: 8, duration: .35 });
+      linhas($('.manchete', f)).forEach(function (g, i) {
+        tl.from(g, { y: -46, autoAlpha: 0, duration: .45, ease: 'back.out(1.8)' }, i ? '-=.28' : '>');
+      });
+      return tl.from($('.lead', f), { autoAlpha: 0, y: 14, duration: .5 });
+    },
+    function (f) { // 2 Argumentos: fios se desenham, rótulos batem como carimbo, texto é impresso da esquerda para a direita
+      var tl = gsap.timeline();
+      tl.from($$('.regua', f), { scaleY: 0, duration: .7, ease: 'power2.inOut', stagger: .15 });
+      $$('.col', f).forEach(function (c, i) {
+        var t = i ? '-=.75' : '-=.35';
+        tl.from($('.rotulo', c), { scale: 2.6, rotation: -14, autoAlpha: 0, duration: .3, ease: 'power4.in' }, t)
+          .fromTo($$('h2, p', c), { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: .55, ease: 'power2.out', stagger: .1 }, '>-.05');
+      });
+      return tl;
+    },
+    function (f) { // 3 Passos: o texto chega da esquerda, as fichas deslizam da direita, as extensões são datilografadas
+      return gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .from($('.intro', f).children, { x: -40, autoAlpha: 0, duration: .5, stagger: .1 })
+        .from($$('.ficha', f), { x: 160, rotation: 3, autoAlpha: 0, duration: .6, stagger: .18 }, '-=.3')
+        .add(datilografar($('.datilo', f), 1.4), '-=.4');
+    },
+    function (f) { // 4 O que esperar: as caixas abrem do meio, como página dupla; o ponteiro do relógio dá a volta
+      return gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .from($('.titulo', f), { y: -24, autoAlpha: 0, duration: .5 })
+        .from($('.caixa-esq', f), { rotationY: -88, transformOrigin: 'right center', autoAlpha: 0, duration: .9 }, '-=.1')
+        .from($('.caixa-dir', f), { rotationY: 88, transformOrigin: 'left center', autoAlpha: 0, duration: .9 }, '<')
+        .fromTo($('.ponteiro', f), { rotation: 0, svgOrigin: '17 17' }, { rotation: 720, svgOrigin: '17 17', duration: 2.2, ease: 'power2.inOut' }, '-=.4');
+    },
+    function (f) { // 5 O programa: a janela sobe da mesa e o lote anda até o FIM
+      return gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .from($('.cabeca-janela', f), { autoAlpha: 0, y: -10, duration: .4 })
+        .from($('.janela', f), { y: 70, rotationX: 10, transformPerspective: 1200, autoAlpha: 0, duration: .8 }, '-=.1')
+        .add(function () { if (!parado) rodarLote(); });
+    },
+    function (f) { // 6 Baixar: a manchete aparece, o botão sobe e o carimbo GRÁTIS bate
+      return gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .from($('.porque', f), { y: -20, autoAlpha: 0, duration: .5 })
+        .from($('.final', f), { scale: 1.08, autoAlpha: 0, duration: .6 }, '-=.2')
+        .from($('.sub', f), { autoAlpha: 0, y: 10, duration: .4 }, '-=.25')
+        .from($('.cta-pc, .cta-cel', f), { y: 30, autoAlpha: 0, duration: .5 }, '-=.1')
+        .fromTo($('.carimbo', f), { scale: 3, rotation: -30, autoAlpha: 0 }, { scale: 1, rotation: -12, autoAlpha: 1, duration: .35, ease: 'power4.in' })
+        .to($('.cta .botao', f), { x: 3, duration: .05, yoyo: true, repeat: 3 }, '>-.02')
+        .from($('.rodape', f), { autoAlpha: 0, duration: .5 });
     }
-    setAppState('running');
+  ];
 
-    // Revelar ao rolar: só o que está abaixo da primeira tela; respeita "reduzir movimento".
-    (function () {
-      if (!innerHeight || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var alvos = [].slice.call(document.querySelectorAll('.rv')).filter(function (el) { return el.getBoundingClientRect().top > innerHeight; });
-      document.querySelectorAll('.rv').forEach(function (el) { if (alvos.indexOf(el) < 0) el.classList.add('on'); });
-      document.documentElement.classList.add('rv-js');
-      var obs = new IntersectionObserver(function (es) {
-        es.filter(function (e) { return e.isIntersecting; }).forEach(function (e, i) {
-          obs.unobserve(e.target);
-          setTimeout(function () { e.target.classList.add('on'); }, i * 90);
+  var folhas = $$('.folha'), N = folhas.length, tls = [];
+
+  function montar() {
+    folhas.forEach(function (f, i) { var t = ENTRADAS[i](f); t.pause(0); tls[i] = t; });
+    if (parado) { tls.forEach(function (t) { t.progress(1); }); renderJanela(INICIO + 0.62); }
+    if (html.classList.contains('prensa')) prensa(); else rolagem();
+  }
+
+  /* ---------- Modo rolagem: cada bloco toca o seu movimento ao chegar à tela ---------- */
+  function rolagem() {
+    if (parado || !('IntersectionObserver' in window)) { tls.forEach(function (t) { t.progress(1); }); return; }
+    var obs = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { tls[folhas.indexOf(e.target)].play(); obs.unobserve(e.target); } });
+    }, { threshold: .3 });
+    folhas.forEach(function (f) { obs.observe(f); });
+  }
+
+  /* ---------- Modo prensa: um gesto = uma folha; o papel avança na esteira ---------- */
+  function prensa() {
+    var papel = $('#papel'), trilho = $('#trilho'), rolos = $$('.rolo'), seta = $('#seta'), pontos = $('#pontos');
+    var i = 0, H = 0, ocupado = false, giro = { v: 0 };
+    folhas.forEach(function (f, n) {
+      var b = document.createElement('button'); b.type = 'button'; b.title = f.dataset.nome; b.setAttribute('aria-label', 'Ir para: ' + f.dataset.nome);
+      b.addEventListener('click', function () { ir(n); }); pontos.appendChild(b);
+    });
+    var baixar = document.createElement('a'); baixar.href = '#baixar'; baixar.textContent = 'Baixar';
+    baixar.addEventListener('click', function (e) { e.preventDefault(); ir(N - 1); }); pontos.appendChild(baixar);
+
+    function medir() {
+      H = papel.clientHeight;
+      html.style.setProperty('--h', H + 'px');
+      // cada folha precisa caber numa tela: se não couber, a folha encolhe por inteiro
+      folhas.forEach(function (f) {
+        var c = $('.folha-corpo', f); c.style.transform = '';
+        var s = Math.min(1, (H - 110) / c.scrollHeight); // 110: cabeçalho da página em cima e "continua" embaixo c.style.transform = s < 1 ? 'scale(' + s.toFixed(3) + ')' : '';
+      });
+      gsap.set(trilho, { y: -i * H });
+    }
+    function marcar() {
+      folhas.forEach(function (f, n) { var fora = n !== i; f.inert = fora; f.setAttribute('aria-hidden', fora); });
+      $$('button', pontos).forEach(function (b, n) { b.setAttribute('aria-current', n === i); });
+      seta.style.visibility = i === N - 1 ? 'hidden' : 'visible';
+      $('span', seta).textContent = 'Continua na página ' + (i + 2);
+    }
+    function ir(n) {
+      if (ocupado || n < 0 || n >= N || n === i) return;
+      ocupado = true;
+      var de = i, dir = n > i ? 1 : -1, tinta = $('.folha-tinta', folhas[de]);
+      if (de === 4 && loteTl) loteTl.kill();
+      var tl = gsap.timeline({ onComplete: function () { setTimeout(function () { ocupado = false; espera = true; }, 200); } });
+      if (!parado) tl.to(tinta, { autoAlpha: 0, y: -dir * 30, duration: .3, ease: 'power2.in' });
+      tl.to(trilho, { y: -n * H, duration: parado ? 0 : .95, ease: 'power3.inOut' })
+        .to(giro, { v: '+=' + dir * H * .6, duration: parado ? 0 : .95, ease: 'power3.inOut', onUpdate: function () {
+          rolos.forEach(function (r) { r.style.setProperty('--giro', (-giro.v % 60) + 'px'); });
+        } }, '<')
+        .add(function () {
+          gsap.set(tinta, { clearProps: 'opacity,visibility,transform' });
+          if (!parado) tls[de].pause(0);
+          i = n; marcar();
+          if (!parado) tls[n].restart(); else if (n === 4) renderJanela(INICIO + 0.62);
         });
-      }, { rootMargin: '0px 0px -8% 0px' });
-      alvos.forEach(function (el) { obs.observe(el); });
-    })();
-  </script>
-  <script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+    }
+    // roda do mouse e touchpad: soma o gesto; ignora o embalo do touchpad logo depois de uma troca
+    var soma = 0, ultimo = 0, espera = false, zerar;
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey) return;
+      e.preventDefault();
+      var agora = performance.now(), intervalo = agora - ultimo; ultimo = agora;
+      if (ocupado) return;
+      if (espera) { if (intervalo < 160) return; espera = false; }
+      soma += e.deltaY; clearTimeout(zerar); zerar = setTimeout(function () { soma = 0; }, 180);
+      if (Math.abs(soma) > 45) { ir(i + (soma > 0 ? 1 : -1)); soma = 0; }
+    }, { passive: false });
+    window.addEventListener('keydown', function (e) {
+      var k = e.key;
+      if (k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); ir(i + 1); }
+      else if (k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); ir(i - 1); }
+      else if (k === 'Home') { e.preventDefault(); ir(0); }
+      else if (k === 'End') { e.preventDefault(); ir(N - 1); }
+    });
+    var y0 = null;
+    window.addEventListener('touchstart', function (e) { y0 = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchend', function (e) { if (y0 === null) return; var d = y0 - e.changedTouches[0].clientY; if (Math.abs(d) > 50) ir(i + (d > 0 ? 1 : -1)); y0 = null; }, { passive: true });
+    seta.addEventListener('click', function () { ir(i + 1); });
+    irPara = ir;
+    window.addEventListener('resize', medir);
+
+    medir(); marcar();
+    if (!parado) tls[0].play();
+  }
+
+  // espera as fontes para medir as linhas da manchete e a altura das folhas
+  var pronto = function () { setTimeout(montar, 60); };
+  if (!window.gsap) { html.classList.remove('prensa'); html.classList.add('rolagem'); return; }
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    if (document.readyState === 'complete') pronto(); else window.addEventListener('load', pronto);
+  });
+})();
+</script>
+<script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
