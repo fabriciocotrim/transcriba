@@ -1,145 +1,426 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Transcriba — transcrição de áudio e vídeo no seu computador</title>
-<meta name="description" content="Transforme gravações em texto no seu computador, de graça e sem limite. Para entrevistas de pesquisa, aulas e reuniões. O áudio nunca sai do seu computador.">
-<link rel="icon" href="img/icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Libre+Bodoni:wght@700&family=Libre+Franklin:wght@400;600;800&display=swap">
-<style>
-:root{--papel:#eeede7;--tinta:#18181b;--vermelho:#b3261e;--vermelho-escuro:#951f18;--fio:#cfccc2;--cinza:#55555c;--ativa:#e2e0d7}
-*{box-sizing:border-box}
-html{background:var(--papel)}
-body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.55 "Libre Franklin",system-ui,sans-serif}
-.pagina{max-width:1040px;margin:0 auto;padding:0 20px}
-a{color:inherit}
-header.cabeca{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:18px 0 10px;border-bottom:3px double var(--tinta)}
-.marca{font:700 34px/1 "Libre Bodoni",serif;margin:0}
-.data{font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:var(--cinza)}
-.faixa{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--tinta)}
-.kicker{background:var(--vermelho);color:#fff;font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;padding:5px 8px;text-transform:uppercase}
-.faixa span{font:600 13px/1.3 "Libre Franklin",sans-serif}
-.manchete{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;padding:28px 0 24px;border-bottom:1px solid var(--tinta)}
-h1{font:700 clamp(32px,5vw,52px)/1.05 "Libre Bodoni",serif;margin:0 0 16px}
-.lead{font-size:18px;margin:0 0 22px;max-width:36em}
-.baixar{display:inline-block;background:var(--vermelho);color:#fff;text-decoration:none;font:700 17px/1 "Libre Franklin",sans-serif;padding:16px 26px}
-.baixar:hover{background:var(--vermelho-escuro)}
-.baixar small{display:block;font:400 13px/1.2 "Libre Franklin",sans-serif;margin-top:6px;opacity:.9}
-.alt{margin:14px 0 0;font-size:14px;color:var(--cinza)}
-.requisito{font:400 13px/1.4 "Courier Prime",monospace;color:var(--cinza);margin-top:14px}
-.passos{border-left:1px solid var(--tinta);padding-left:24px}
-.passos h2,.secao h2{font:800 11px/1 "Libre Franklin",sans-serif;letter-spacing:1.6px;text-transform:uppercase;margin:0 0 14px}
-.passos ol{margin:0;padding:0;list-style:none;counter-reset:p}
-.passos li{counter-increment:p;padding:0 0 14px 40px;position:relative}
-.passos li::before{content:counter(p,decimal-leading-zero);position:absolute;left:0;top:-2px;font:700 20px/1 "Courier Prime",monospace}
-.passos li b{display:block}
-.tela{margin:24px 0;border:1px solid var(--tinta)}
-.tela img{display:block;width:100%;height:auto}
-.legenda{font:400 13px/1.4 "Libre Franklin",sans-serif;color:var(--cinza);margin:-14px 0 24px}
-.colunas{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--tinta);border-bottom:1px solid var(--tinta)}
-.colunas div{padding:18px 20px 18px 0}
-.colunas div+div{border-left:1px solid var(--fio);padding-left:20px}
-.colunas h3{font:700 22px/1.15 "Libre Bodoni",serif;margin:0 0 8px}
-.colunas p{margin:0;font-size:15px}
-.secao{padding:26px 0;border-bottom:1px solid var(--tinta)}
-dl{margin:0;display:grid;grid-template-columns:minmax(0,18em) 1fr;gap:12px 28px}
-dt{font-weight:800}
-dd{margin:0}
-footer{padding:20px 0 40px;font-size:13px;color:var(--cinza)}
-footer p{margin:4px 0}
-/* Revelar ao rolar: o bloco sobe 40 px e aparece, um depois do outro. */
-.rv{transition:opacity 600ms ease,transform 600ms cubic-bezier(.2,.7,.2,1)}
-.rv:not(.on){opacity:0;transform:translateY(40px)}
-@media (max-width:760px){
-  .manchete{grid-template-columns:1fr}
-  .passos{border-left:none;border-top:1px solid var(--tinta);padding:20px 0 0}
-  .colunas{grid-template-columns:1fr}
-  .colunas div+div{border-left:none;border-top:1px solid var(--fio);padding-left:0}
-  dl{grid-template-columns:1fr;gap:4px}
-  dd{margin-bottom:12px}
-  header.cabeca{flex-direction:column;gap:6px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcriba — transcrição de áudio e vídeo em lote no seu computador</title>
+  <meta name="description" content="Transcreva dezenas de entrevistas, aulas e reuniões de uma vez, no seu computador. Grátis, sem conta e sem limite. O áudio nunca sai da sua máquina.">
+  <link rel="icon" href="img/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#F2EFE9',
+            paperDark: '#E6E2D8',
+            paperRow: '#E5E1D6',
+            ink: '#141413',
+            inkMuted: '#66645E',
+            editorialRed: '#B82921',
+            editorialRedHover: '#961E17',
+          },
+          fontFamily: {
+            serif: ['"Newsreader"', 'Georgia', 'serif'],
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F2EFE9;
+      color: #141413;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .double-rule-bottom { border-bottom: 4px double #141413; }
+    .double-rule-top { border-top: 4px double #141413; }
+    .editorial-shadow { box-shadow: 6px 6px 0px #141413; }
+    .editorial-shadow-sm { box-shadow: 3px 3px 0px #141413; }
+    /* No celular, o botão de baixar dá lugar a "mandar o link para mim" (o script liga a classe). */
+    .cta-cel { display: none; }
+    html.celular .cta-pc { display: none; }
+    html.celular .cta-cel { display: block; }
+    /* Revelar ao rolar: o bloco sobe 40 px e aparece, um depois do outro. */
+    .rv { transition: opacity 600ms ease, transform 600ms cubic-bezier(.2,.7,.2,1); }
+    html.rv-js .rv:not(.on) { opacity: 0; transform: translateY(40px); }
+  </style>
 </head>
-<body>
-<div class="pagina">
-  <header class="cabeca">
-    <p class="marca">Transcriba</p>
-    <span class="data">Transcrição no seu computador · grátis · sem limite</span>
+<body class="min-h-screen flex flex-col selection:bg-editorialRed selection:text-white">
+
+  <!-- CABEÇALHO EDITORIAL -->
+  <header class="double-rule-bottom bg-paper sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div class="flex items-baseline gap-3">
+        <a href="#" class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-ink no-underline">Transcriba</a>
+        <span class="font-mono text-[11px] text-inkMuted uppercase tracking-wider hidden md:inline-block">Edição Windows 10 / 11 · Uso local e gratuito</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="font-mono text-xs text-inkMuted hidden sm:inline">Sem conta · Sem limite de horas</span>
+        <a href="#baixar" class="bg-ink hover:bg-editorialRed text-paper font-sans text-xs font-medium px-3.5 py-2 border border-ink transition">
+          Baixar
+        </a>
+      </div>
+    </div>
   </header>
-  <div class="faixa"><span class="kicker">Novo</span><span>Versão 0.2.2 para Windows 10 e 11</span></div>
 
-  <section class="manchete">
-    <div>
-      <h1>Suas gravações viram texto. O áudio não sai do seu computador.</h1>
-      <p class="lead">Entrevistas de pesquisa, aulas e reuniões: escolha dezenas de arquivos, clique em Transcrever e volte para encontrar os textos prontos. Sem conta, sem assinatura, sem limite de minutos.</p>
-      <a class="baixar" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2">Baixar o Transcriba<small>Versão portátil · 183 MB · não precisa instalar</small></a>
-      <p class="alt">Prefere instalar com atalho no menu Iniciar? <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</p>
-      <p class="requisito">Windows 10 ou 11, 64 bits · placa NVIDIA opcional (deixa bem mais rápido)</p>
-    </div>
-    <div class="passos">
-      <h2>Como começar</h2>
-      <ol>
-        <li><b>Extraia a pasta</b>Clique com o botão direito no arquivo baixado e escolha "Extrair tudo". Não abra o programa de dentro do .zip.</li>
-        <li><b>Abra o Transcriba.exe</b>Na primeira vez, o Windows pode mostrar "O Windows protegeu o computador". Clique em "Mais informações" e depois em "Executar assim mesmo".</li>
-        <li><b>Arraste os arquivos e clique em Transcrever</b>Na primeira transcrição, o programa baixa o modelo de voz uma vez só (de 150 MB a 1,6 GB). Depois, funciona sem internet.</li>
-      </ol>
+  <!-- DOBRA 1: MANCHETE -->
+  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-10 pb-12 border-b border-ink">
+    <div class="text-center max-w-3xl mx-auto">
+      <div class="inline-flex flex-wrap justify-center items-center gap-2 mb-4">
+        <span class="bg-editorialRed text-white font-mono text-[11px] font-semibold px-2 py-0.5 uppercase tracking-wider">Gratuito</span>
+        <span class="font-mono text-xs text-inkMuted uppercase tracking-wide">Roda 100% no seu computador</span>
+      </div>
+      <h1 class="font-serif text-3xl sm:text-5xl font-bold text-ink leading-[1.12] tracking-tight mb-4">
+        Transcreva dezenas de entrevistas e aulas de uma só vez. Sem enviar seus áudios para a internet.
+      </h1>
+      <p class="text-base sm:text-lg text-inkMuted leading-relaxed mb-7 max-w-2xl mx-auto">
+        Solte uma pasta com gravações, clique em Transcrever e vá fazer outra coisa. Quando voltar, os textos estarão prontos na sua máquina, com sigilo total para a sua pesquisa ou o seu trabalho.
+      </p>
+      <div class="cta"></div>
     </div>
   </section>
 
-  <figure class="tela" style="margin-bottom:24px">
-    <img src="img/transcrevendo.webp" width="1400" height="753" alt="Janela do Transcriba transcrevendo uma fila de arquivos, com o texto aparecendo ao vivo à direita" loading="lazy">
-  </figure>
-  <p class="legenda">A fila de arquivos, o que está sendo transcrito agora e o texto aparecendo ao vivo.</p>
-
-  <section class="colunas">
-    <div><h3>Privado</h3><p>Tudo acontece no seu computador. Suas gravações e os textos não são enviados a ninguém.</p></div>
-    <div><h3>Em lote</h3><p>Uma pasta inteira de uma vez. Ele avisa quando termina e não deixa o computador dormir no meio.</p></div>
-    <div><h3>Pronto para usar</h3><p>Texto corrido (.txt), legendas (.srt) ou texto com marcas de tempo. MP3, MP4, M4A, WAV, OGG do WhatsApp e outros.</p></div>
+  <!-- DOBRA 2: OS 3 PILARES -->
+  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
+    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
+      <div class="pb-6 md:pb-0 md:pr-8 rv">
+        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Privacidade e ética</div>
+        <h2 class="font-serif text-2xl font-bold text-ink mb-2">O áudio nunca sai do seu computador.</h2>
+        <p class="text-sm text-inkMuted leading-relaxed">
+          Essencial para mestrado, doutorado, TCC com comitê de ética ou reuniões confidenciais. A internet só é usada uma vez, na primeira transcrição, para baixar o modelo de voz. Depois, funciona até com o Wi-Fi desligado.
+        </p>
+      </div>
+      <div class="py-6 md:py-0 md:px-8 rv">
+        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Em lote</div>
+        <h2 class="font-serif text-2xl font-bold text-ink mb-2">Solte a pasta inteira e vá descansar.</h2>
+        <p class="text-sm text-inkMuted leading-relaxed">
+          Nada de mandar arquivo por arquivo para um site. Arraste dezenas de entrevistas, aulas ou áudios de WhatsApp de uma vez. A fila mostra o andamento (<code class="font-mono text-xs">□ na fila</code>, <code class="font-mono text-xs">◧ transcrevendo</code>, <code class="font-mono text-xs">■ pronto</code>) e a hora prevista para terminar.
+        </p>
+      </div>
+      <div class="pt-6 md:pt-0 md:pl-8 rv">
+        <div class="font-mono text-xs text-editorialRed font-semibold uppercase mb-1">Gratuito de verdade</div>
+        <h2 class="font-serif text-2xl font-bold text-ink mb-2">Sem conta, assinatura nem limite de horas.</h2>
+        <p class="text-sm text-inkMuted leading-relaxed">
+          Serviços online costumam cobrar por minuto ou limitar o tamanho do arquivo. O Transcriba usa o processador da sua própria máquina, então não há servidor para pagar: você transcreve quantas horas quiser, sem criar login.
+        </p>
+      </div>
+    </div>
   </section>
 
-  <section class="secao">
-    <h2>Perguntas</h2>
-    <dl>
-      <dt>É grátis mesmo?</dt>
-      <dd>Sim, e sem limite. Se o Transcriba te ajudar, dá para apoiar uma vez só pelo Pix, dentro do próprio programa. Não é obrigatório.</dd>
-      <dt>Precisa de internet?</dt>
-      <dd>Só na primeira transcrição, para baixar o modelo de voz. Depois, funciona offline.</dd>
-      <dt>Fica bom com áudio misturado em inglês?</dt>
-      <dd>Sim. Ele detecta o idioma e mantém as citações em outro idioma. Na qualidade "Preciso", o resultado é o melhor.</dd>
-      <dt>Meu computador é fraco. Funciona?</dt>
-      <dd>Funciona, mais devagar: sem placa NVIDIA, uma hora de áudio pode levar perto de uma hora. Deixe rodando e vá fazer outra coisa.</dd>
-      <dt>Por que o Windows avisa ao abrir?</dt>
-      <dd>O aviso aparece com programas que não têm assinatura digital paga. O Transcriba é de um desenvolvedor independente. O código não se conecta a nada além do download do modelo.</dd>
-      <dt>Tem para Mac ou celular?</dt>
-      <dd>Ainda não. Se você precisa, conte para a gente: isso define o que vem a seguir.</dd>
-    </dl>
+  <!-- DOBRA 3: A JANELA DO PROGRAMA -->
+  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink rv">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <div class="flex flex-wrap items-center gap-1">
+        <span class="font-mono text-xs text-inkMuted mr-2">Veja o programa em ação:</span>
+        <button type="button" onclick="setAppState('running')" id="tab-running" class="px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium transition">
+          1. Durante o lote
+        </button>
+        <button type="button" onclick="setAppState('done')" id="tab-done" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper transition">
+          2. No fim do lote
+        </button>
+      </div>
+      <span class="font-mono text-[11px] text-inkMuted hidden sm:inline">Reprodução da janela do Transcriba no Windows</span>
+    </div>
+
+    <div class="border-2 border-ink bg-paper editorial-shadow overflow-hidden select-none" aria-label="Reprodução da janela do Transcriba">
+      <div class="px-4 py-2.5 double-rule-bottom flex flex-wrap items-center justify-between gap-2 bg-paper">
+        <div class="flex items-baseline gap-4">
+          <span class="font-serif text-2xl font-bold tracking-tight text-ink">Transcriba</span>
+          <span class="font-mono text-[11px] text-inkMuted uppercase tracking-wider hidden sm:inline">Domingo, 25 de outubro de 2026</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div id="app-top-stats" class="font-sans text-xs text-ink"></div>
+          <span class="border border-ink/40 bg-paper px-2.5 py-1 text-xs text-ink hidden sm:inline">Configurações</span>
+        </div>
+      </div>
+
+      <div id="app-banner-running" class="px-4 py-3 border-b border-ink/40 flex flex-wrap items-center justify-between gap-4 bg-paper">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Agora</span>
+          <span class="font-mono text-sm font-semibold text-ink">004</span>
+          <span class="font-serif text-xl sm:text-2xl font-bold text-ink truncate">Podcast ep. 41 - Cozinha mineira</span>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <div class="w-40 sm:w-56 h-1.5 bg-ink/15 overflow-hidden"><div class="w-[62%] h-full bg-ink"></div></div>
+          <span class="font-mono text-xs font-bold text-ink">62%</span>
+          <span class="font-sans text-xs text-inkMuted">termina por volta de 23:40</span>
+        </div>
+      </div>
+
+      <div id="app-banner-done" class="hidden px-4 py-3 border-b border-ink/40 flex-wrap items-center justify-between gap-4 bg-paper">
+        <div class="flex items-center gap-3">
+          <span class="bg-editorialRed text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider">Fim</span>
+          <span class="font-serif text-xl sm:text-2xl font-bold text-ink">7 transcritos · 1 com erro · 5h54</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="border border-ink bg-paper px-3 py-1 text-xs font-medium">Abrir pasta</span>
+          <span class="border border-ink bg-paper px-3 py-1 text-xs font-medium">Tentar de novo os que falharam</span>
+          <span class="text-xs underline ml-2 text-ink">Apoie o Transcriba</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[340px]">
+        <div class="lg:col-span-9 p-4 border-b lg:border-b-0 lg:border-r border-ink/40 min-w-0">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="border border-ink/60 bg-paper px-2.5 py-1 text-xs">Adicionar arquivos</span>
+              <span class="border border-ink/60 bg-paper px-2.5 py-1 text-xs">Adicionar pasta</span>
+              <span class="font-serif italic text-xs text-inkMuted ml-1 hidden sm:inline">ou arraste arquivos para cá</span>
+            </div>
+            <span class="border border-ink/20 text-inkMuted px-2.5 py-1 text-xs hidden sm:inline">Remover</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b-2 border-ink font-mono text-[10px] text-ink uppercase">
+                  <th class="py-1.5 pr-2 w-10">Nº</th>
+                  <th class="py-1.5 px-2">Arquivo</th>
+                  <th class="py-1.5 px-2 w-20">Duração</th>
+                  <th class="py-1.5 px-2 w-40">Situação</th>
+                  <th class="py-1.5 pl-2">Saída</th>
+                </tr>
+              </thead>
+              <tbody id="app-table-body" class="divide-y divide-ink/15 font-sans"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="lg:col-span-3 flex flex-col bg-paper min-w-0">
+          <div class="px-3.5 py-2.5 border-b border-ink/40 flex items-center justify-between">
+            <div class="font-mono text-[11px]">
+              <strong id="app-sidebar-title" class="uppercase">Texto ao vivo</strong>
+              <span id="app-sidebar-sub" class="text-inkMuted ml-1">004 · Português</span>
+            </div>
+            <span class="border border-ink/50 px-2 py-0.5 text-[11px]">Ocultar</span>
+          </div>
+          <div id="app-live-text" class="p-3.5 space-y-3 text-xs leading-relaxed text-ink"></div>
+        </div>
+      </div>
+
+      <div class="px-4 py-2.5 double-rule-top bg-paper flex flex-wrap items-center justify-between gap-3 text-[11px]">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex flex-wrap items-center gap-1">
+            <span class="font-mono text-[10px] text-inkMuted mr-1">SALVAR EM</span>
+            <span class="bg-ink text-paper px-2 py-1 font-medium">Pasta escolhida</span>
+            <span class="border border-ink/40 px-2 py-1 text-inkMuted">Junto de cada arquivo</span>
+            <span class="border border-ink px-2 py-1">Escolher</span>
+          </div>
+          <div class="items-center gap-1 hidden md:flex">
+            <span class="font-mono text-[10px] text-inkMuted mr-1">FORMATOS</span>
+            <span class="bg-ink text-paper px-2 py-1 font-mono">.txt</span>
+            <span class="border border-ink/40 px-2 py-1 font-mono">.srt</span>
+            <span class="border border-ink/40 px-2 py-1">marcas de tempo</span>
+          </div>
+        </div>
+        <span id="app-bottom-btn" class="bg-editorialRed text-white font-medium px-4 py-1.5 inline-block"></span>
+      </div>
+    </div>
+
+    <p class="font-mono text-xs text-inkMuted mt-3 text-center">
+      ↑ A janela do programa. Toque em "1. Durante o lote" e "2. No fim do lote" para ver como ele avisa quando termina.
+    </p>
   </section>
 
-  <footer>
-    <p>Transcriba 0.2.2 · <a href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></p>
-    <p>Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais. O programa não envia nada.</p>
+  <!-- DOBRA 4: COMO FUNCIONA E FORMATOS -->
+  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-5 rv">
+        <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Feito para quem não é técnico</span>
+        <h2 class="font-serif text-3xl font-bold text-ink mt-1 mb-4">Três passos entre a gravação e o texto pronto para citar.</h2>
+        <p class="text-sm text-inkMuted leading-relaxed mb-6">
+          Você não precisa converter arquivos nem configurar nada. Se o arquivo toca no seu computador ou celular, o Transcriba lê.
+        </p>
+        <div class="bg-paperDark border border-ink p-4 space-y-2 text-xs">
+          <div class="font-mono font-semibold text-ink uppercase border-b border-ink/30 pb-1">Formatos que você pode arrastar direto</div>
+          <p><strong class="font-mono">Entradas:</strong> MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.</p>
+          <p><strong class="font-mono">Saídas:</strong> texto corrido (<code class="font-mono">.txt</code>), legenda (<code class="font-mono">.srt</code>) e texto com marcas de tempo (<code class="font-mono text-editorialRed">[00:14:02]</code>) para facilitar a conferência.</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7 space-y-4">
+        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
+          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">1</span>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-ink mb-1">Adicione os arquivos ou uma pasta inteira</h3>
+            <p class="text-sm text-inkMuted">Clique em "Adicionar pasta" ou arraste as gravações para a janela. Você vê na hora a duração de cada uma e o tempo total da fila.</p>
+          </div>
+        </div>
+        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
+          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">2</span>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-ink mb-1">Escolha onde salvar e clique em Transcrever</h3>
+            <p class="text-sm text-inkMuted">Salve os textos numa pasta só ou junto de cada gravação, com o nome original ou numerados (<code class="font-mono text-xs">Transcricao_001.txt</code>).</p>
+          </div>
+        </div>
+        <div class="border border-ink bg-paper p-5 flex gap-4 rv">
+          <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">3</span>
+          <div>
+            <h3 class="font-serif text-xl font-bold text-ink mb-1">Acompanhe ao vivo ou volte quando terminar</h3>
+            <p class="text-sm text-inkMuted">O texto aparece na lateral enquanto é transcrito. Se no meio do lote houver um vídeo sem som (<code class="font-mono text-xs text-editorialRed">⊠ ERRO: vídeo sem trilha de áudio</code>), o programa avisa e continua os outros.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOBRA 5: O QUE ESPERAR -->
+  <section class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-12 border-b border-ink">
+    <div class="mb-6 rv">
+      <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Perguntas importantes antes de baixar</span>
+      <h2 class="font-serif text-3xl font-bold text-ink mt-1">O que esperar no seu computador</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="border border-ink bg-paperDark p-6 rv">
+        <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Tempo de transcrição</div>
+        <h3 class="font-serif text-2xl font-bold text-ink mb-3">Quanto tempo demora?</h3>
+        <div class="space-y-3 text-sm text-ink leading-relaxed">
+          <p><strong>Em notebooks e computadores comuns:</strong> perto de <strong>1 para 1</strong>. Uma hora de gravação leva cerca de uma hora para virar texto. Por isso o lote ajuda: deixe a pasta rodando no almoço ou à noite e encontre tudo pronto.</p>
+          <p class="pt-2 border-t border-ink/20"><strong>Com placa de vídeo NVIDIA:</strong> fica <strong>bem mais rápido</strong>. O Transcriba reconhece a placa sozinho, sem configurar nada.</p>
+        </div>
+      </div>
+      <div class="border border-ink bg-paperDark p-6 rv">
+        <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Requisitos e primeiro uso</div>
+        <h3 class="font-serif text-2xl font-bold text-ink mb-3">Funciona no meu Windows?</h3>
+        <ul class="space-y-2.5 text-sm text-ink leading-relaxed">
+          <li><strong>Sistema:</strong> Windows 10 ou 11, 64 bits.</li>
+          <li><strong>Extraia antes de abrir:</strong> clique com o botão direito no arquivo baixado e escolha "Extrair tudo". Não abra o programa de dentro do .zip.</li>
+          <li><strong>Primeira transcrição:</strong> o programa usa a internet uma vez para baixar o modelo de voz (de 150 MB a 1,6 GB).</li>
+          <li class="pt-2 border-t border-ink/20"><strong>Aviso do Windows ao abrir:</strong> por ser um programa independente e gratuito, o Windows pode mostrar a janela azul <em>"O Windows protegeu o computador"</em>. Clique em <strong>"Mais informações"</strong> e depois em <strong>"Executar assim mesmo"</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOBRA 6: APOIO E DOWNLOAD FINAL -->
+  <section id="baixar" class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-14 text-center scroll-mt-16">
+    <div class="inline-block border border-ink bg-paperDark px-4 py-2 mb-6 text-xs text-ink rv">
+      <strong>Por que é gratuito?</strong> O Transcriba é mantido de forma independente para pesquisadores, estudantes e professores. Se ele te poupar dias de trabalho, há um "Apoie o Transcriba" por Pix dentro do programa. Não é obrigatório.
+    </div>
+    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3 rv">Pronto para parar de transcrever no braço?</h2>
+    <p class="text-base text-inkMuted mb-8 max-w-xl mx-auto rv">Baixe o Transcriba grátis para Windows, solte a pasta de gravações e deixe o computador trabalhar por você.</p>
+    <div class="cta"></div>
+  </section>
+
+  <footer class="double-rule-top bg-paperDark py-6 px-4 sm:px-6 font-mono text-xs text-inkMuted mt-auto">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div><strong class="font-serif text-base text-ink mr-2">Transcriba 0.2.2</strong> · Programa gratuito para Windows 10 e 11 · <a class="underline" href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></div>
+      <div>O programa não envia nada. Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais.</div>
+    </div>
   </footer>
-</div>
-<script>
-(function(){
-  if(!innerHeight||!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  // Só esconde o que está abaixo da primeira tela: o que já se vê ao abrir nunca pisca.
-  var alvos=[].slice.call(document.querySelectorAll('.tela,.legenda,.colunas>div,.secao h2,dt'))
-    .filter(function(el){return el.getBoundingClientRect().top>innerHeight;});
-  var par=function(el){return el.tagName==='DT'?[el,el.nextElementSibling]:[el];};
-  alvos.forEach(function(el){par(el).forEach(function(x){x.classList.add('rv');});});
-  var obs=new IntersectionObserver(function(es){
-    es.filter(function(e){return e.isIntersecting;}).forEach(function(e,i){
-      obs.unobserve(e.target);
-      setTimeout(function(){par(e.target).forEach(function(x){x.classList.add('on');});},i*90);
+
+  <!-- Modelo dos botões de baixar (usado nas duas dobras de download) -->
+  <template id="tpl-cta">
+    <div class="cta-pc">
+      <div class="inline-flex flex-col items-center">
+        <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2"
+           class="bg-editorialRed hover:bg-editorialRedHover text-white font-sans font-semibold text-base sm:text-lg px-8 py-4 border border-ink editorial-shadow-sm transition">
+          ↓ Baixar o Transcriba para Windows
+        </a>
+        <span class="font-mono text-xs text-inkMuted mt-2.5">Versão portátil · 183 MB · não precisa instalar · grátis e sem limite</span>
+        <span class="font-sans text-sm text-inkMuted mt-1.5">Prefere instalar com atalho no menu Iniciar? <a class="underline text-ink" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</span>
+      </div>
+    </div>
+    <div class="cta-cel">
+      <div class="bg-paperDark border-2 border-ink p-4 text-left max-w-md mx-auto">
+        <div class="font-mono text-[11px] text-editorialRed font-bold uppercase mb-1">Você está no celular</div>
+        <p class="text-sm text-ink mb-3 leading-relaxed">O Transcriba é um programa para computador com Windows 10 ou 11. Mande o link para você e abra no computador.</p>
+        <a href="#" data-compartilhar data-goatcounter-click="mandar-link-celular" class="w-full bg-ink hover:bg-editorialRed text-paper font-sans font-semibold text-sm py-3 px-4 mb-2 transition text-center block">Mandar o link para mim</a>
+        <div class="text-center">
+          <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-celular" class="font-mono text-[11px] text-inkMuted underline">Ou baixar o .zip aqui mesmo</a>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    // Celular: tela de toque e estreita. O botão de baixar vira "mandar o link para mim".
+    var toque = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    if (toque && !matchMedia('(min-width: 1024px)').matches) {
+      document.documentElement.classList.add('celular');
+    }
+    var tpl = document.getElementById('tpl-cta');
+    document.querySelectorAll('.cta').forEach(function (c) { c.appendChild(tpl.content.cloneNode(true)); });
+    document.querySelectorAll('[data-compartilhar]').forEach(function (a) {
+      var texto = 'Transcriba: programa gratuito que transcreve entrevistas e aulas no Windows. Baixe no computador: ' + location.href.split('#')[0];
+      a.href = 'https://wa.me/?text=' + encodeURIComponent(texto);
+      a.addEventListener('click', function (e) {
+        if (!navigator.share) return; // sem a folha de compartilhar: segue o link do WhatsApp
+        e.preventDefault();
+        navigator.share({ title: 'Transcriba', text: texto }).catch(function () {});
+      });
     });
-  },{rootMargin:'0px 0px -8% 0px'});
-  alvos.forEach(function(el){obs.observe(el);});
-})();
-</script>
-<script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+
+    // A janela do programa: dados das duas capturas reais (durante e no fim do lote).
+    var filesData = [
+      { num: '001', name: 'Aula 03 - Revolução Industrial.mp4', dur: '52:14', statusRun: 'PRONTO', statusDone: 'PRONTO', out: 'Transcricao_001.txt' },
+      { num: '002', name: 'Entrevista Dona Cida.m4a', dur: '1:08:40', statusRun: 'PRONTO', statusDone: 'PRONTO', out: 'Transcricao_002.txt' },
+      { num: '003', name: 'Reunião pais e mestres 12-09.mp4', dur: '47:02', statusRun: 'ERRO', statusDone: 'ERRO', out: 'Vídeo sem trilha de áudio' },
+      { num: '004', name: 'Podcast ep. 41 - Cozinha mineira.mp3', dur: '38:55', statusRun: 'TRANSCREVENDO 62%', statusDone: 'PRONTO', out: 'Transcricao_004.txt' },
+      { num: '005', name: 'Palestra Semana da Saúde.mp4', dur: '1:21:33', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_005.txt' },
+      { num: '006', name: 'Áudio WhatsApp 2026-09-30.ogg', dur: '3:12', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_006.txt' },
+      { num: '007', name: 'Ensaio coral.wav', dur: '12:40', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_007.txt' },
+      { num: '008', name: 'Aula 04 - Primeira Guerra.mp4', dur: '49:50', statusRun: 'NA FILA', statusDone: 'PRONTO', out: 'Transcricao_008.txt' }
+    ];
+    var TAB_ON = 'px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium transition';
+    var TAB_OFF = 'px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper transition';
+    var marca = function (t) { return '<span class="font-mono text-[11px] text-editorialRed font-semibold mr-1">' + t + '</span>'; };
+
+    function setAppState(state) {
+      var run = state === 'running', $ = function (id) { return document.getElementById(id); };
+      $('tab-running').className = run ? TAB_ON : TAB_OFF;
+      $('tab-done').className = run ? TAB_OFF : TAB_ON;
+      $('app-banner-running').classList.toggle('hidden', !run);
+      $('app-banner-done').classList.toggle('hidden', run);
+      $('app-banner-done').classList.toggle('flex', !run);
+      $('app-top-stats').innerHTML = run
+        ? '<strong>8 arquivos</strong> · <span class="text-inkMuted">5h54 de áudio</span> · <strong>2 prontos</strong> · <span class="text-editorialRed font-semibold">1 com erro</span> · <span class="text-inkMuted">4 na fila</span>'
+        : '<strong>8 arquivos</strong> · <span class="text-inkMuted">5h54 de áudio</span> · <strong>7 prontos</strong> · <span class="text-editorialRed font-semibold">1 com erro</span>';
+      $('app-sidebar-title').textContent = run ? 'Texto ao vivo' : 'Último texto';
+      $('app-sidebar-sub').textContent = run ? '004 · Português' : '008 · Português';
+      $('app-live-text').innerHTML = run
+        ? '<p>' + marca('00:24:02') + 'e aí o segredo do pão de queijo é o polvilho azedo, não adianta.</p>'
+          + '<p>' + marca('00:24:09') + 'A minha avó escaldava o polvilho com leite fervendo e óleo.</p>'
+          + '<p>' + marca('00:24:21') + 'O queijo tem que ser meia-cura, ralado grosso.</p>'
+        : '<p>' + marca('00:49:21') + 'E foi assim que a guerra terminou, com o armistício assinado num vagão de trem.</p>';
+      $('app-bottom-btn').textContent = run ? 'Cancelar lote' : 'Tentar de novo (1 com erro)';
+      $('app-table-body').innerHTML = filesData.map(function (f) {
+        var st = run ? f.statusRun : f.statusDone;
+        var atual = st.indexOf('TRANSCREVENDO') === 0, erro = st === 'ERRO', fila = st === 'NA FILA';
+        var icone = erro ? '⊠' : (atual ? '◧' : (fila ? '□' : '■'));
+        var situacao = erro
+          ? '<span class="text-editorialRed font-mono font-semibold">' + icone + ' ERRO</span>'
+          : '<span class="font-mono font-semibold ' + (fila ? 'text-inkMuted' : 'text-ink') + '">' + icone + ' ' + st + '</span>';
+        return '<tr class="' + (atual ? 'bg-paperRow font-semibold' : (fila ? 'text-inkMuted' : 'text-ink')) + '">'
+          + '<td class="py-2 pr-2 font-mono text-[11px]">' + f.num + '</td>'
+          + '<td class="py-2 px-2 whitespace-nowrap">' + f.name + '</td>'
+          + '<td class="py-2 px-2 font-mono text-[11px]">' + f.dur + '</td>'
+          + '<td class="py-2 px-2 text-[11px] whitespace-nowrap">' + situacao + '</td>'
+          + '<td class="py-2 pl-2 text-[11px] whitespace-nowrap ' + (erro ? 'text-editorialRed font-sans' : 'font-mono text-inkMuted') + '">' + (fila || atual ? '' : f.out) + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+    setAppState('running');
+
+    // Revelar ao rolar: só o que está abaixo da primeira tela; respeita "reduzir movimento".
+    (function () {
+      if (!innerHeight || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var alvos = [].slice.call(document.querySelectorAll('.rv')).filter(function (el) { return el.getBoundingClientRect().top > innerHeight; });
+      document.querySelectorAll('.rv').forEach(function (el) { if (alvos.indexOf(el) < 0) el.classList.add('on'); });
+      document.documentElement.classList.add('rv-js');
+      var obs = new IntersectionObserver(function (es) {
+        es.filter(function (e) { return e.isIntersecting; }).forEach(function (e, i) {
+          obs.unobserve(e.target);
+          setTimeout(function () { e.target.classList.add('on'); }, i * 90);
+        });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      alvos.forEach(function (el) { obs.observe(el); });
+    })();
+  </script>
+  <script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
