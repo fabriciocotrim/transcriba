@@ -49,6 +49,8 @@ dt{font-weight:800}
 dd{margin:0}
 footer{padding:20px 0 40px;font-size:13px;color:var(--cinza)}
 footer p{margin:4px 0}
+/* Revelar ao rolar, pela Prensa Rule: o bloco entra de uma vez, sem transição, um depois do outro. */
+.rv:not(.on){opacity:0}
 @media (max-width:760px){
   .manchete{grid-template-columns:1fr}
   .passos{border-left:none;border-top:1px solid var(--tinta);padding:20px 0 0}
@@ -120,6 +122,23 @@ footer p{margin:4px 0}
     <p>Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais. O programa não envia nada.</p>
   </footer>
 </div>
+<script>
+(function(){
+  if(!innerHeight||!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Só esconde o que está abaixo da primeira tela: o que já se vê ao abrir nunca pisca.
+  var alvos=[].slice.call(document.querySelectorAll('.tela,.legenda,.colunas>div,.secao h2,dt'))
+    .filter(function(el){return el.getBoundingClientRect().top>innerHeight;});
+  var par=function(el){return el.tagName==='DT'?[el,el.nextElementSibling]:[el];};
+  alvos.forEach(function(el){par(el).forEach(function(x){x.classList.add('rv');});});
+  var obs=new IntersectionObserver(function(es){
+    es.filter(function(e){return e.isIntersecting;}).forEach(function(e,i){
+      obs.unobserve(e.target);
+      setTimeout(function(){par(e.target).forEach(function(x){x.classList.add('on');});},i*90);
+    });
+  },{rootMargin:'0px 0px -8% 0px'});
+  alvos.forEach(function(el){obs.observe(el);});
+})();
+</script>
 <script data-goatcounter="https://fabriciocotrim.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
