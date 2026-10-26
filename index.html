@@ -69,7 +69,7 @@
   .dateline { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; border-top:1px solid var(--tinta); border-bottom:4px double var(--tinta);
     padding:5px 2px; font:500 11px/1.3 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--tinta); }
   .linha-fina { font:italic 400 20px/1.45 'Newsreader',Georgia,serif; color:#3d3c39; }
-  .texto-jornal { font:400 16px/1.5 'Newsreader',Georgia,serif; color:var(--tinta); text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
+  .texto-jornal { font:400 17px/1.5 'Newsreader',Georgia,serif; color:var(--tinta); }
   .capitular::first-letter { float:left; font:700 3.3em/.82 'Newsreader',Georgia,serif; margin:.06em .08em 0 0; color:var(--tinta); }
   .folio { display:flex; justify-content:space-between; align-items:baseline; gap:12px; border-bottom:1px solid var(--tinta); padding-bottom:5px;
     font:500 10px/1.2 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.1em; color:#66645E; }
@@ -142,10 +142,10 @@
           <div class="max-w-4xl mx-auto text-center mt-8">
             <div class="kicker inline-flex flex-wrap justify-center items-center gap-2 mb-4">
               <span class="bg-editorialRed text-white font-mono text-[11px] font-semibold px-2 py-0.5 uppercase tracking-wider">Gratuito</span>
-              <span class="font-mono text-xs text-inkMuted uppercase tracking-wide">Roda 100% no seu computador</span>
+              <span class="font-mono text-xs text-inkMuted uppercase tracking-wide">Roda no seu computador</span>
             </div>
-            <h1 class="manchete font-serif text-4xl sm:text-6xl font-bold text-ink leading-[1.05] tracking-tight mb-5">Transcreva dezenas de entrevistas e aulas de uma só vez. Sem enviar seus áudios para a internet.</h1>
-            <p class="lead linha-fina max-w-2xl mx-auto">Solte uma pasta com gravações, clique em Transcrever e vá fazer outra coisa. Quando voltar, os textos estarão prontos na sua máquina, com sigilo total para a sua pesquisa ou o seu trabalho.</p>
+            <h1 class="manchete font-serif text-4xl sm:text-6xl font-bold text-ink leading-[1.05] tracking-tight mb-5">Dezenas de gravações viram texto. Sem enviar nada.</h1>
+            <p class="lead linha-fina max-w-2xl mx-auto">Solte a pasta. Clique em Transcrever. Volte para os textos prontos.</p>
           </div>
         </div></div>
       </section>
@@ -155,19 +155,19 @@
         <div class="folha-corpo"><div class="folha-tinta f2">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-y-8">
             <div class="col relative md:pr-8">
-              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Privacidade e ética</div>
-              <h2 class="font-serif text-3xl font-bold text-ink mb-3">O áudio nunca sai do seu computador.</h2>
-              <p class="texto-jornal capitular">Essencial para mestrado, doutorado, TCC com comitê de ética ou reuniões confidenciais. A internet só é usada uma vez, na primeira transcrição, para baixar o modelo de voz. Depois, funciona até com o Wi-Fi desligado.</p>
+              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Privado</div>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">O áudio não sai do computador.</h2>
+              <p class="texto-jornal capitular">Ideal para pesquisa com comitê de ética e reuniões sigilosas. Internet só uma vez, para baixar o modelo de voz.</p>
             </div>
             <div class="col relative md:px-8"><span class="regua hidden md:block"></span>
               <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Em lote</div>
-              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Solte a pasta inteira e vá descansar.</h2>
-              <p class="texto-jornal capitular">Nada de mandar arquivo por arquivo para um site. Arraste dezenas de entrevistas, aulas ou áudios de WhatsApp de uma vez. A fila mostra o andamento de cada arquivo (□ na fila, ◧ transcrevendo, ■ pronto) e a hora prevista para terminar.</p>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Uma pasta inteira de uma vez.</h2>
+              <p class="texto-jornal capitular">Entrevistas, aulas, áudios de WhatsApp. A fila mostra o andamento e a hora de terminar.</p>
             </div>
             <div class="col relative md:pl-8"><span class="regua hidden md:block"></span>
-              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Gratuito de verdade</div>
-              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Sem conta, assinatura nem limite de horas.</h2>
-              <p class="texto-jornal capitular">Serviços online costumam cobrar por minuto ou limitar o tamanho do arquivo. O Transcriba usa o processador da sua própria máquina, então não há servidor para pagar: você transcreve quantas horas quiser, sem criar login.</p>
+              <div class="rotulo inline-block font-mono text-xs text-editorialRed font-semibold uppercase mb-2 border border-editorialRed px-1.5 py-0.5">Grátis</div>
+              <h2 class="font-serif text-3xl font-bold text-ink mb-3">Sem conta. Sem limite de horas.</h2>
+              <p class="texto-jornal capitular">Roda no seu processador: sem servidor, sem mensalidade, sem login.</p>
             </div>
           </div>
         </div></div>
@@ -178,30 +178,30 @@
         <div class="folha-corpo"><div class="folha-tinta f3">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div class="intro lg:col-span-5">
-              <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Feito para quem não é técnico</span>
-              <h2 class="font-serif text-3xl font-bold text-ink mt-1 mb-4">Três passos entre a gravação e o texto pronto para citar.</h2>
-              <p class="texto-jornal mb-6">Você não precisa converter arquivos nem configurar nada. Se o arquivo toca no seu computador ou celular, o Transcriba lê.</p>
+              <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Nada técnico</span>
+              <h2 class="font-serif text-3xl font-bold text-ink mt-1 mb-4">Três passos. Sem configurar nada.</h2>
+              <p class="texto-jornal mb-6">Se toca no computador, o Transcriba lê.</p>
               <div class="formatos bg-paperDark border border-ink p-4 space-y-2 text-xs">
-                <div class="font-mono font-semibold text-ink uppercase border-b border-ink/30 pb-1">Formatos que você pode arrastar direto</div>
-                <p><strong class="font-mono">Entradas:</strong> <span class="datilo" data-texto="MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.">MP3, MP4, M4A (gravador do celular), WAV, OGG (áudios do WhatsApp), MKV e gravações do Zoom ou Meet.</span></p>
-                <p><strong class="font-mono">Saídas:</strong> texto corrido (<code class="font-mono">.txt</code>), legenda (<code class="font-mono">.srt</code>) e texto com marcas de tempo (<code class="font-mono text-editorialRed">[00:14:02]</code>).</p>
+                <div class="font-mono font-semibold text-ink uppercase border-b border-ink/30 pb-1">Formatos</div>
+                <p><strong class="font-mono">Entra:</strong> <span class="datilo" data-texto="MP3 · MP4 · M4A · WAV · OGG (WhatsApp) · MKV">MP3 · MP4 · M4A · WAV · OGG (WhatsApp) · MKV</span></p>
+                <p><strong class="font-mono">Sai:</strong> <code class="font-mono">.txt</code> · <code class="font-mono">.srt</code> · texto com <code class="font-mono text-editorialRed">[00:14:02]</code></p>
               </div>
             </div>
             <div class="lg:col-span-7 space-y-4">
               <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
                 <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">1</span>
-                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Adicione os arquivos ou uma pasta inteira</h3>
-                <p class="text-sm text-inkMuted">Clique em "Adicionar pasta" ou arraste as gravações para a janela. Você vê na hora a duração de cada uma e o tempo total da fila.</p></div>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Arraste a pasta</h3>
+                <p class="text-sm text-inkMuted">A duração de cada gravação aparece na hora.</p></div>
               </div>
               <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
                 <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">2</span>
-                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Escolha onde salvar e clique em Transcrever</h3>
-                <p class="text-sm text-inkMuted">Salve os textos numa pasta só ou junto de cada gravação, com o nome original ou numerados (<code class="font-mono text-xs">Transcricao_001.txt</code>).</p></div>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Clique em Transcrever</h3>
+                <p class="text-sm text-inkMuted">Numa pasta só ou junto de cada gravação.</p></div>
               </div>
               <div class="ficha border border-ink bg-paper p-5 flex gap-4 editorial-shadow-sm">
                 <span class="font-mono text-lg font-bold bg-ink text-paper w-8 h-8 flex items-center justify-center shrink-0">3</span>
-                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Acompanhe ao vivo ou volte quando terminar</h3>
-                <p class="text-sm text-inkMuted">O texto aparece na lateral enquanto é transcrito. Se houver um vídeo sem som (<code class="font-mono text-xs text-editorialRed">⊠ ERRO: vídeo sem trilha de áudio</code>), o programa avisa e continua os outros.</p></div>
+                <div><h3 class="font-serif text-xl font-bold text-ink mb-1">Volte quando quiser</h3>
+                <p class="text-sm text-inkMuted">Texto ao vivo. Um erro não para a fila.</p></div>
               </div>
             </div>
           </div>
@@ -212,29 +212,29 @@
       <section class="folha" data-nome="O que esperar" aria-label="O que esperar">
         <div class="folha-corpo"><div class="folha-tinta f4">
           <div class="titulo mb-6 text-center">
-            <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Perguntas importantes antes de baixar</span>
-            <h2 class="font-serif text-4xl font-bold text-ink mt-1">O que esperar no seu computador</h2>
+            <span class="font-mono text-xs uppercase text-inkMuted tracking-wider">Antes de baixar</span>
+            <h2 class="font-serif text-4xl font-bold text-ink mt-1">O que esperar</h2>
           </div>
           <div class="perspectiva grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="caixa-esq border border-ink bg-paperDark p-6">
               <div class="flex items-center justify-between mb-2">
-                <div class="font-mono text-xs font-semibold uppercase text-editorialRed">Tempo de transcrição</div>
+                <div class="font-mono text-xs font-semibold uppercase text-editorialRed">Tempo</div>
                 <svg class="relogio" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="none" stroke="#141413" stroke-width="2"/><line x1="17" y1="17" x2="17" y2="8" stroke="#141413" stroke-width="2"/><line class="ponteiro" x1="17" y1="17" x2="17" y2="5" stroke="#B82921" stroke-width="2" stroke-linecap="square"/><circle cx="17" cy="17" r="2" fill="#141413"/></svg>
               </div>
-              <h3 class="font-serif text-2xl font-bold text-ink mb-3">Quanto tempo demora?</h3>
+              <h3 class="font-serif text-2xl font-bold text-ink mb-3">Quanto demora?</h3>
               <div class="space-y-3 text-sm text-ink leading-relaxed">
-                <p><strong>Em notebooks e computadores comuns:</strong> perto de <strong class="font-mono">1 para 1</strong>. Uma hora de gravação leva cerca de uma hora para virar texto. Por isso o lote ajuda: deixe a pasta rodando no almoço ou à noite.</p>
-                <p class="pt-2 border-t border-ink/20"><strong>Com placa de vídeo NVIDIA:</strong> fica <strong>bem mais rápido</strong>. O Transcriba reconhece a placa sozinho.</p>
+                <p><strong>Computador comum:</strong> <strong class="font-mono">1 h de áudio ≈ 1 h</strong>. Deixe rodando à noite.</p>
+                <p class="pt-2 border-t border-ink/20"><strong>Com placa NVIDIA:</strong> bem mais rápido.</p>
               </div>
             </div>
             <div class="caixa-dir border border-ink bg-paperDark p-6">
-              <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Requisitos e primeiro uso</div>
+              <div class="font-mono text-xs font-semibold uppercase text-editorialRed mb-2">Requisitos</div>
               <h3 class="font-serif text-2xl font-bold text-ink mb-3">Funciona no meu Windows?</h3>
               <ul class="space-y-2 text-sm text-ink leading-relaxed">
-                <li><strong>Sistema:</strong> Windows 10 ou 11, 64 bits.</li>
-                <li><strong>Extraia antes de abrir:</strong> botão direito no arquivo baixado, "Extrair tudo". Não abra o programa de dentro do .zip.</li>
-                <li><strong>Primeira transcrição:</strong> baixa o modelo de voz uma vez (de 150 MB a 1,6 GB).</li>
-                <li class="pt-2 border-t border-ink/20"><strong>Aviso do Windows ao abrir:</strong> se aparecer <em>"O Windows protegeu o computador"</em>, clique em <strong>"Mais informações"</strong> e em <strong>"Executar assim mesmo"</strong>.</li>
+                <li><strong>Windows 10 ou 11</strong>, 64 bits.</li>
+                <li><strong>Extraia o .zip</strong> antes de abrir.</li>
+                <li><strong>1ª vez:</strong> baixa o modelo de voz (150 MB a 1,6 GB).</li>
+                <li class="pt-2 border-t border-ink/20"><strong>Aviso azul do Windows?</strong> "Mais informações" → "Executar assim mesmo".</li>
               </ul>
             </div>
           </div>
@@ -246,7 +246,7 @@
         <div class="folha-corpo"><div class="folha-tinta f5">
           <div class="cabeca-janela flex flex-wrap items-center justify-between gap-2 mb-2">
             <div class="flex flex-wrap items-center gap-1">
-              <span class="font-mono text-xs text-inkMuted mr-2">Veja o programa em ação:</span>
+              <span class="font-mono text-xs text-inkMuted mr-2">O programa em ação:</span>
               <button type="button" data-estado="rever" class="px-3 py-1.5 font-mono text-xs border border-ink bg-ink text-paper font-medium">▶ Rever o lote</button>
               <button type="button" data-estado="running" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper">1. Durante o lote</button>
               <button type="button" data-estado="done" class="px-3 py-1.5 font-mono text-xs border border-ink bg-paperDark text-ink hover:bg-paper">2. No fim do lote</button>
@@ -276,7 +276,7 @@
               </div>
             </div>
           </div>
-          <p class="legenda">▲ A fila do Transcriba durante um lote: o que está pronto, o que está sendo transcrito e o texto aparecendo ao vivo. Reprodução da janela.</p>
+          <p class="legenda">▲ A fila e o texto ao vivo. Reprodução da janela.</p>
         </div></div>
       </section>
 
@@ -284,14 +284,14 @@
       <section class="folha" data-nome="Baixar" aria-label="Baixar" id="baixar">
         <div class="folha-corpo"><div class="folha-tinta f6 text-center max-w-3xl mx-auto">
           <div class="porque inline-block border border-ink bg-paperDark px-4 py-2 mb-6 text-xs text-ink">
-            <strong>Por que é gratuito?</strong> O Transcriba é mantido de forma independente para pesquisadores, estudantes e professores. Se ele te poupar dias de trabalho, há um "Apoie o Transcriba" por Pix dentro do programa. Não é obrigatório.
+            <strong>Por que é grátis?</strong> Projeto independente. Gostou? Apoie por Pix, dentro do programa. Opcional.
           </div>
-          <h2 class="final font-serif text-4xl sm:text-5xl font-bold text-ink mb-3">Pronto para parar de transcrever no braço?</h2>
-          <p class="sub text-base text-inkMuted mb-8 max-w-xl mx-auto">Baixe o Transcriba grátis para Windows, solte a pasta de gravações e deixe o computador trabalhar por você.</p>
+          <h2 class="final font-serif text-4xl sm:text-5xl font-bold text-ink mb-3">Pare de transcrever no braço.</h2>
+          <p class="sub text-base text-inkMuted mb-8 max-w-xl mx-auto">Grátis para Windows 10 e 11.</p>
           <div class="cta relative inline-block"><span class="carimbo" aria-hidden="true">Grátis</span></div>
           <div class="rodape double-rule-top mt-10 pt-4 font-mono text-[11px] text-inkMuted flex flex-wrap justify-between gap-2">
             <span><strong class="font-serif text-sm text-ink">Transcriba 0.2.2</strong> · <a class="underline" href="https://github.com/fabriciocotrim/transcriba/releases">todas as versões</a></span>
-            <span>O programa não envia nada. Esta página conta visitas com o GoatCounter, sem cookies e sem dados pessoais.</span>
+            <span>O programa não envia nada. A página conta visitas sem cookies (GoatCounter).</span>
           </div>
         </div></div>
       </section>
@@ -306,15 +306,15 @@
 <template id="tpl-cta">
   <div class="cta-pc">
     <div class="inline-flex flex-col items-center">
-      <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2" class="botao bg-editorialRed hover:bg-editorialRedHover text-white font-sans font-semibold text-base sm:text-lg px-8 py-4 border border-ink editorial-shadow-sm">↓ Baixar o Transcriba para Windows</a>
-      <span class="font-mono text-xs text-inkMuted mt-2.5">Versão portátil · 183 MB · não precisa instalar · grátis e sem limite</span>
-      <span class="font-sans text-sm text-inkMuted mt-1.5">Prefere instalar? <a class="underline text-ink" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Baixe o instalador (126 MB)</a>.</span>
+      <a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-0.2.2" class="botao bg-editorialRed hover:bg-editorialRedHover text-white font-sans font-semibold text-base sm:text-lg px-8 py-4 border border-ink editorial-shadow-sm">↓ Baixar o Transcriba</a>
+      <span class="font-mono text-xs text-inkMuted mt-2.5">Portátil · 183 MB · sem instalar</span>
+      <span class="font-sans text-sm text-inkMuted mt-1.5">Prefere instalar? <a class="underline text-ink" href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-Setup.exe" data-goatcounter-click="baixar-instalador-0.2.2">Instalador (126 MB)</a></span>
     </div>
   </div>
   <div class="cta-cel">
     <div class="bg-paperDark border-2 border-ink p-4 text-left max-w-md mx-auto">
       <div class="font-mono text-[11px] text-editorialRed font-bold uppercase mb-1">Você está no celular</div>
-      <p class="text-sm text-ink mb-3 leading-relaxed">O Transcriba é um programa para computador com Windows 10 ou 11. Mande o link para você e abra no computador.</p>
+      <p class="text-sm text-ink mb-3 leading-relaxed">O Transcriba é para computador com Windows. Mande o link para você.</p>
       <a href="#" data-compartilhar data-goatcounter-click="mandar-link-celular" class="w-full bg-ink text-paper font-sans font-semibold text-sm py-3 px-4 mb-2 text-center block">Mandar o link para mim</a>
       <div class="text-center"><a href="https://github.com/fabriciocotrim/transcriba/releases/download/v0.2.2/Transcriba-0.2.2-portatil.zip" data-goatcounter-click="baixar-portatil-celular" class="font-mono text-[11px] text-inkMuted underline">Ou baixar o .zip aqui mesmo</a></div>
     </div>
