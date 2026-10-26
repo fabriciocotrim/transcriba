@@ -49,8 +49,9 @@ dt{font-weight:800}
 dd{margin:0}
 footer{padding:20px 0 40px;font-size:13px;color:var(--cinza)}
 footer p{margin:4px 0}
-/* Revelar ao rolar, pela Prensa Rule: o bloco entra de uma vez, sem transição, um depois do outro. */
-.rv:not(.on){opacity:0}
+/* Revelar ao rolar: o bloco sobe 40 px e aparece, um depois do outro. */
+.rv{transition:opacity 600ms ease,transform 600ms cubic-bezier(.2,.7,.2,1)}
+.rv:not(.on){opacity:0;transform:translateY(40px)}
 @media (max-width:760px){
   .manchete{grid-template-columns:1fr}
   .passos{border-left:none;border-top:1px solid var(--tinta);padding:20px 0 0}
